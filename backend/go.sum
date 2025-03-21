@@ -1,0 +1,4 @@
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/gopcua/opcua v0.7.1 h1:jkqUurQaIVnvmNT3RicCKbTScco4NwzbePNwQd+Xz78=
+github.com/gopcua/opcua v0.7.1/go.mod h1:05WGDsfAt9iZSPl83ZBKedsCEgq2Z6//ViCS7KWE7IY=
