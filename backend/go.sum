@@ -1,4 +1,16 @@
+github.com/awcullen/opcua v1.4.0 h1:kRqaB1cxlCynnXsiRYhMf/G1/vWXBrqRoPyOfTP8HT0=
+github.com/awcullen/opcua v1.4.0/go.mod h1:XGHP1yXNqGigaT5juQR3QdDZP3pHVM9OIZbm2EPwhIo=
+github.com/db47h/rand64/v3 v3.1.0 h1:FnWZl8xPhaS+A8qb0FEiOZrD9SVd2q2odrWuVWA3P6Q=
+github.com/db47h/rand64/v3 v3.1.0/go.mod h1:TA1RhaTNEO7E3sxxIM4fu1T9PeFvUvm6a0gV2ibnQ+A=
+github.com/djherbis/buffer v1.2.0 h1:PH5Dd2ss0C7CRRhQCZ2u7MssF+No9ide8Ye71nPHcrQ=
+github.com/djherbis/buffer v1.2.0/go.mod h1:fjnebbZjCUpPinBRD+TDwXSOeNQ7fPQWLfGQqiAiUyE=
+github.com/gammazero/deque v1.0.0 h1:LTmimT8H7bXkkCy6gZX7zNLtkbz4NdS2z8LZuor3j34=
+github.com/gammazero/deque v1.0.0/go.mod h1:iflpYvtGfM3U8S8j+sZEKIak3SAKYpA5/SQewgfXDKo=
+github.com/gammazero/workerpool v1.1.3 h1:WixN4xzukFoN0XSeXF6puqEqFTl2mECI9S6W44HWy9Q=
+github.com/gammazero/workerpool v1.1.3/go.mod h1:wPjyBLDbyKnUn2XwwyD3EEwo9dHutia9/fwNmSHWACc=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/gopcua/opcua v0.7.1 h1:jkqUurQaIVnvmNT3RicCKbTScco4NwzbePNwQd+Xz78=
 github.com/gopcua/opcua v0.7.1/go.mod h1:05WGDsfAt9iZSPl83ZBKedsCEgq2Z6//ViCS7KWE7IY=
+github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
+github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
