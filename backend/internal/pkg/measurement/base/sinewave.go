@@ -3,6 +3,7 @@ package base
 import (
 	"fmt"
 	"math"
+	"sensor-simulator/internal/pkg/domain/simulator"
 )
 
 type SineWaveSimulator struct {
@@ -14,10 +15,11 @@ type SineWaveSimulator struct {
 
 	currentValue float64
 
-	startPoint       float64
-	endPoint         float64
-	distanceTicks    uint64
-	ticksUntilChange uint64
+	startPoint    float64
+	endPoint      float64
+	distanceTicks uint64
+
+	currentTick uint64
 }
 
 func NewSineWaveSimulator(
@@ -51,25 +53,27 @@ func NewSineWaveSimulator(
 	}, nil
 }
 
-func (s *SineWaveSimulator) Iterate() float64 {
-	if s.ticksUntilChange > 0 {
-		s.ticksUntilChange--
-	} else {
+func (s *SineWaveSimulator) Iterate() simulator.PointState {
+	if s.currentTick >= s.distanceTicks {
 		newDestination := (s.maxValue-s.minValue)*s.prng.NextZeroToOne() + s.minValue
 		newTicks := uint(float64(s.maxTicksUntilChange) * s.prng.NextZeroToOne())
 
 		s.distanceTicks = uint64(newTicks)
-		s.ticksUntilChange = uint64(newTicks) - 1
+		s.currentTick = 0
 		s.startPoint = s.endPoint
 		s.endPoint = newDestination
 	}
 
 	delta := (s.endPoint - s.startPoint) * math.Sin(
-		math.Pi/2*float64(s.distanceTicks-s.ticksUntilChange)/float64(s.distanceTicks),
+		math.Pi/2*float64(s.currentTick)/float64(s.distanceTicks),
 	)
 
 	newValue := s.startPoint + delta
-
 	s.currentValue = newValue
-	return newValue
+	s.currentTick++
+
+	return simulator.PointState{
+		Value: newValue,
+		Tick:  s.currentTick,
+	}
 }

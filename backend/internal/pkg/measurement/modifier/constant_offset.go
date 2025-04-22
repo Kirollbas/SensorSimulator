@@ -1,17 +1,20 @@
 package modifier
 
+import "sensor-simulator/internal/pkg/domain/simulator"
+
 type ConstantOffset struct {
-	value float64
+	offset float64
 }
 
 func NewOffsetModifier(
 	offset float64,
 ) (*ConstantOffset, error) {
 	return &ConstantOffset{
-		value: offset,
+		offset: offset,
 	}, nil
 }
 
-func (o *ConstantOffset) ApplyModifier(value float64) float64 {
-	return value + o.value
+func (o *ConstantOffset) ApplyModifier(point simulator.PointState) simulator.PointState {
+	point.Value += o.offset
+	return point
 }

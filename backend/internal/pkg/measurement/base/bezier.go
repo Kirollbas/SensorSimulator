@@ -3,6 +3,7 @@ package base
 import (
 	"fmt"
 	"math"
+	"sensor-simulator/internal/pkg/domain/simulator"
 )
 
 type Generator interface {
@@ -19,10 +20,10 @@ type BezierSimulator struct {
 
 	currentValue float64
 
-	startPoint       float64
-	endPoint         float64
-	distanceTicks    uint64
-	ticksUntilChange uint64
+	startPoint    float64
+	endPoint      float64
+	distanceTicks uint64
+	currentTick   uint64
 }
 
 func NewBezierSimulator(
@@ -56,26 +57,29 @@ func NewBezierSimulator(
 	}, nil
 }
 
-func (b *BezierSimulator) Iterate() float64 {
-	if b.ticksUntilChange > 0 {
-		b.ticksUntilChange--
-	} else {
+func (b *BezierSimulator) Iterate() simulator.PointState {
+	if b.currentTick >= b.distanceTicks {
 		newDestination := (b.maxValue-b.minValue)*b.prng.NextZeroToOne() + b.minValue
 		newTicks := uint(float64(b.maxTicksUntilChange) * b.prng.NextZeroToOne())
 
 		b.distanceTicks = uint64(newTicks)
-		b.ticksUntilChange = uint64(newTicks) - 1
+		b.currentTick = 0
 		b.startPoint = b.endPoint
 		b.endPoint = newDestination
 	}
 
-	currentTime := float64(b.ticksUntilChange) / float64(b.distanceTicks)
+	currentTime := float64(b.currentTick) / float64(b.distanceTicks)
 
-	newValue := math.Pow(currentTime, 3)*b.startPoint +
-		3*math.Pow(currentTime, 2)*(1-currentTime)*b.startPoint +
-		3*currentTime*math.Pow(1-currentTime, 2)*b.endPoint +
-		math.Pow(1-currentTime, 3)*b.endPoint
+	newValue := math.Pow(1-currentTime, 3)*b.startPoint +
+		3*math.Pow(1-currentTime, 2)*(currentTime)*b.startPoint +
+		3*(1-currentTime)*math.Pow(currentTime, 2)*b.endPoint +
+		math.Pow(currentTime, 3)*b.endPoint
 
 	b.currentValue = newValue
-	return newValue
+	b.currentTick++
+
+	return simulator.PointState{
+		Value: newValue,
+		Tick:  b.currentTick,
+	}
 }

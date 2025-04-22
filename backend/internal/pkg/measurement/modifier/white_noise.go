@@ -1,6 +1,9 @@
 package modifier
 
-import "fmt"
+import (
+	"fmt"
+	"sensor-simulator/internal/pkg/domain/simulator"
+)
 
 type Generator interface {
 	NextZeroToOne() float64
@@ -25,6 +28,7 @@ func NewWhiteNoiseModifier(
 	}, nil
 }
 
-func (wn *WhiteNoise) ApplyModifier(value float64) float64 {
-	return value + wn.maxOffset*2*wn.prng.NextZeroToOne() - 1
+func (wn *WhiteNoise) ApplyModifier(point simulator.PointState) simulator.PointState {
+	point.Value += wn.maxOffset*2*wn.prng.NextZeroToOne() - 1
+	return point
 }

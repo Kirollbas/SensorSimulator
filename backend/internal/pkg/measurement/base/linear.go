@@ -2,6 +2,7 @@ package base
 
 import (
 	"fmt"
+	"sensor-simulator/internal/pkg/domain/simulator"
 )
 
 type LinearSimulator struct {
@@ -13,10 +14,10 @@ type LinearSimulator struct {
 
 	currentValue float64
 
-	nextPoint        float64
-	speed            float64
-	distanceTicks    uint64
-	ticksUntilChange uint64
+	nextPoint     float64
+	speed         float64
+	distanceTicks uint64
+	currentTick   uint64
 }
 
 func NewLinearSimulator(
@@ -49,15 +50,13 @@ func NewLinearSimulator(
 	}, nil
 }
 
-func (l *LinearSimulator) Iterate() float64 {
-	if l.ticksUntilChange > 0 {
-		l.ticksUntilChange--
-	} else {
+func (l *LinearSimulator) Iterate() simulator.PointState {
+	if l.currentTick >= l.distanceTicks {
 		newDestination := (l.maxValue-l.minValue)*l.prng.NextZeroToOne() + l.minValue
 		newTicks := uint(float64(l.maxTicksUntilChange) * l.prng.NextZeroToOne())
 
 		l.distanceTicks = uint64(newTicks)
-		l.ticksUntilChange = uint64(newTicks) - 1
+		l.currentTick = 0
 
 		distance := newDestination - l.nextPoint
 		l.speed = distance / float64(newTicks)
@@ -66,5 +65,10 @@ func (l *LinearSimulator) Iterate() float64 {
 	}
 
 	l.currentValue += l.speed
-	return l.currentValue
+	l.currentTick++
+
+	return simulator.PointState{
+		Value: l.currentValue,
+		Tick:  l.currentTick,
+	}
 }
