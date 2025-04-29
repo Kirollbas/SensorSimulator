@@ -1,4 +1,4 @@
-package simulator
+package state
 
 type SimulatorBaseState struct {
 	PreviousPoint float64

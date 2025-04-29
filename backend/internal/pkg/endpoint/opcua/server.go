@@ -1,8 +1,6 @@
 package opcua
 
 import (
-	"sensor-simulator/internal/pkg/measurement/simulator"
-
 	"github.com/gopcua/opcua/id"
 	"github.com/gopcua/opcua/server"
 	"github.com/gopcua/opcua/ua"
@@ -11,11 +9,6 @@ import (
 type Server struct {
 	server          *server.Server
 	commonNamespace *server.NodeNameSpace
-}
-
-type Simulator interface {
-	GetName() string
-	AddEndpointUpdater(simulator.EndpointUpdater)
 }
 
 func NewServer() (*Server, error) {

@@ -1,13 +1,13 @@
 package node
 
 import (
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 	"time"
 
 	"github.com/gopcua/opcua/ua"
 )
 
-func (n *Node) Update(state simulator.PointState) {
+func (n *Node) Update(state state.PointState) {
 	timestamp := time.Now()
 
 	n.baseNode.SetAttribute(ua.AttributeIDValue, &ua.DataValue{

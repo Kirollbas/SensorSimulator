@@ -139,21 +139,23 @@ const (
 	ModifierType_MODIFIER_TYPE_RANDOM_ADD_DASH      ModifierType = 7
 	ModifierType_MODIFIER_TYPE_RANDOM_FIXED_DASH    ModifierType = 8
 	ModifierType_MODIFIER_TYPE_WHITE_NOISE          ModifierType = 9
+	ModifierType_MODIFIER_TYPE_DEPENDENCE           ModifierType = 10
 )
 
 // Enum value maps for ModifierType.
 var (
 	ModifierType_name = map[int32]string{
-		0: "MODIFIER_TYPE_UNKNOWN",
-		1: "MODIFIER_TYPE_CONSTANT_OFFSET",
-		2: "MODIFIER_TYPE_HYSTERESIS",
-		3: "MODIFIER_TYPE_INERTIA",
-		4: "MODIFIER_TYPE_NONLINEAR_DEPENDENCE",
-		5: "MODIFIER_TYPE_PROGRESSING_OFFSET",
-		6: "MODIFIER_TYPE_QUANTIZATION",
-		7: "MODIFIER_TYPE_RANDOM_ADD_DASH",
-		8: "MODIFIER_TYPE_RANDOM_FIXED_DASH",
-		9: "MODIFIER_TYPE_WHITE_NOISE",
+		0:  "MODIFIER_TYPE_UNKNOWN",
+		1:  "MODIFIER_TYPE_CONSTANT_OFFSET",
+		2:  "MODIFIER_TYPE_HYSTERESIS",
+		3:  "MODIFIER_TYPE_INERTIA",
+		4:  "MODIFIER_TYPE_NONLINEAR_DEPENDENCE",
+		5:  "MODIFIER_TYPE_PROGRESSING_OFFSET",
+		6:  "MODIFIER_TYPE_QUANTIZATION",
+		7:  "MODIFIER_TYPE_RANDOM_ADD_DASH",
+		8:  "MODIFIER_TYPE_RANDOM_FIXED_DASH",
+		9:  "MODIFIER_TYPE_WHITE_NOISE",
+		10: "MODIFIER_TYPE_DEPENDENCE",
 	}
 	ModifierType_value = map[string]int32{
 		"MODIFIER_TYPE_UNKNOWN":              0,
@@ -166,6 +168,7 @@ var (
 		"MODIFIER_TYPE_RANDOM_ADD_DASH":      7,
 		"MODIFIER_TYPE_RANDOM_FIXED_DASH":    8,
 		"MODIFIER_TYPE_WHITE_NOISE":          9,
+		"MODIFIER_TYPE_DEPENDENCE":           10,
 	}
 )
 
@@ -472,6 +475,7 @@ type Modifier struct {
 	//	*Modifier_RandomAddDash
 	//	*Modifier_RandomFixedDash
 	//	*Modifier_WhiteNoise
+	//	*Modifier_Dependence
 	TypeData      isModifier_TypeData `protobuf_oneof:"type_data"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -602,6 +606,15 @@ func (x *Modifier) GetWhiteNoise() *WhiteNoiseModifier {
 	return nil
 }
 
+func (x *Modifier) GetDependence() *DependenceModifier {
+	if x != nil {
+		if x, ok := x.TypeData.(*Modifier_Dependence); ok {
+			return x.Dependence
+		}
+	}
+	return nil
+}
+
 type isModifier_TypeData interface {
 	isModifier_TypeData()
 }
@@ -642,6 +655,10 @@ type Modifier_WhiteNoise struct {
 	WhiteNoise *WhiteNoiseModifier `protobuf:"bytes,10,opt,name=white_noise,json=whiteNoise,proto3,oneof"`
 }
 
+type Modifier_Dependence struct {
+	Dependence *DependenceModifier `protobuf:"bytes,11,opt,name=dependence,proto3,oneof"`
+}
+
 func (*Modifier_ConstOffset) isModifier_TypeData() {}
 
 func (*Modifier_Hysteresis) isModifier_TypeData() {}
@@ -659,6 +676,8 @@ func (*Modifier_RandomAddDash) isModifier_TypeData() {}
 func (*Modifier_RandomFixedDash) isModifier_TypeData() {}
 
 func (*Modifier_WhiteNoise) isModifier_TypeData() {}
+
+func (*Modifier_Dependence) isModifier_TypeData() {}
 
 type ConstantOffsetModifier struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -706,7 +725,7 @@ func (x *ConstantOffsetModifier) GetOffset() float64 {
 
 type HysteresisModifier struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Percentage    uint32                 `protobuf:"varint,1,opt,name=percentage,proto3" json:"percentage,omitempty"`
+	Percentage    uint64                 `protobuf:"varint,1,opt,name=percentage,proto3" json:"percentage,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -741,7 +760,7 @@ func (*HysteresisModifier) Descriptor() ([]byte, []int) {
 	return file_simulator_proto_rawDescGZIP(), []int{6}
 }
 
-func (x *HysteresisModifier) GetPercentage() uint32 {
+func (x *HysteresisModifier) GetPercentage() uint64 {
 	if x != nil {
 		return x.Percentage
 	}
@@ -751,7 +770,7 @@ func (x *HysteresisModifier) GetPercentage() uint32 {
 type InertitaModifier struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Value         float64                `protobuf:"fixed64,1,opt,name=value,proto3" json:"value,omitempty"`
-	Period        float64                `protobuf:"fixed64,2,opt,name=period,proto3" json:"period,omitempty"`
+	Period        *durationpb.Duration   `protobuf:"bytes,2,opt,name=period,proto3" json:"period,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -793,11 +812,11 @@ func (x *InertitaModifier) GetValue() float64 {
 	return 0
 }
 
-func (x *InertitaModifier) GetPeriod() float64 {
+func (x *InertitaModifier) GetPeriod() *durationpb.Duration {
 	if x != nil {
 		return x.Period
 	}
-	return 0
+	return nil
 }
 
 type NonLinearDependenceModifier struct {
@@ -1160,18 +1179,79 @@ func (x *WhiteNoiseModifier) GetMaxValue() float64 {
 	return 0
 }
 
+type DependenceModifier struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SimulatorName string                 `protobuf:"bytes,1,opt,name=simulator_name,json=simulatorName,proto3" json:"simulator_name,omitempty"`
+	Center        float64                `protobuf:"fixed64,2,opt,name=center,proto3" json:"center,omitempty"`
+	Coefficient   float64                `protobuf:"fixed64,3,opt,name=coefficient,proto3" json:"coefficient,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DependenceModifier) Reset() {
+	*x = DependenceModifier{}
+	mi := &file_simulator_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DependenceModifier) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DependenceModifier) ProtoMessage() {}
+
+func (x *DependenceModifier) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DependenceModifier.ProtoReflect.Descriptor instead.
+func (*DependenceModifier) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *DependenceModifier) GetSimulatorName() string {
+	if x != nil {
+		return x.SimulatorName
+	}
+	return ""
+}
+
+func (x *DependenceModifier) GetCenter() float64 {
+	if x != nil {
+		return x.Center
+	}
+	return 0
+}
+
+func (x *DependenceModifier) GetCoefficient() float64 {
+	if x != nil {
+		return x.Coefficient
+	}
+	return 0
+}
+
 type Simulator struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Base          *Base                  `protobuf:"bytes,2,opt,name=base,proto3" json:"base,omitempty"`
-	Modifiers     []*Modifier            `protobuf:"bytes,3,rep,name=modifiers,proto3" json:"modifiers,omitempty"`
+	Address       uint32                 `protobuf:"varint,2,opt,name=address,proto3" json:"address,omitempty"`
+	Base          *Base                  `protobuf:"bytes,3,opt,name=base,proto3" json:"base,omitempty"`
+	Modifiers     []*Modifier            `protobuf:"bytes,4,rep,name=modifiers,proto3" json:"modifiers,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Simulator) Reset() {
 	*x = Simulator{}
-	mi := &file_simulator_proto_msgTypes[14]
+	mi := &file_simulator_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1183,7 +1263,7 @@ func (x *Simulator) String() string {
 func (*Simulator) ProtoMessage() {}
 
 func (x *Simulator) ProtoReflect() protoreflect.Message {
-	mi := &file_simulator_proto_msgTypes[14]
+	mi := &file_simulator_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1196,7 +1276,7 @@ func (x *Simulator) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Simulator.ProtoReflect.Descriptor instead.
 func (*Simulator) Descriptor() ([]byte, []int) {
-	return file_simulator_proto_rawDescGZIP(), []int{14}
+	return file_simulator_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *Simulator) GetName() string {
@@ -1204,6 +1284,13 @@ func (x *Simulator) GetName() string {
 		return x.Name
 	}
 	return ""
+}
+
+func (x *Simulator) GetAddress() uint32 {
+	if x != nil {
+		return x.Address
+	}
+	return 0
 }
 
 func (x *Simulator) GetBase() *Base {
@@ -1218,6 +1305,310 @@ func (x *Simulator) GetModifiers() []*Modifier {
 		return x.Modifiers
 	}
 	return nil
+}
+
+type AddSensorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Simulator     *Simulator             `protobuf:"bytes,1,opt,name=simulator,proto3" json:"simulator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddSensorRequest) Reset() {
+	*x = AddSensorRequest{}
+	mi := &file_simulator_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddSensorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddSensorRequest) ProtoMessage() {}
+
+func (x *AddSensorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddSensorRequest.ProtoReflect.Descriptor instead.
+func (*AddSensorRequest) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *AddSensorRequest) GetSimulator() *Simulator {
+	if x != nil {
+		return x.Simulator
+	}
+	return nil
+}
+
+type AddSensorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *AddSensorResponse) Reset() {
+	*x = AddSensorResponse{}
+	mi := &file_simulator_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *AddSensorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*AddSensorResponse) ProtoMessage() {}
+
+func (x *AddSensorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use AddSensorResponse.ProtoReflect.Descriptor instead.
+func (*AddSensorResponse) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{17}
+}
+
+type DeleteSensorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSensorRequest) Reset() {
+	*x = DeleteSensorRequest{}
+	mi := &file_simulator_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSensorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSensorRequest) ProtoMessage() {}
+
+func (x *DeleteSensorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSensorRequest.ProtoReflect.Descriptor instead.
+func (*DeleteSensorRequest) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{18}
+}
+
+func (x *DeleteSensorRequest) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+type DeleteSensorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteSensorResponse) Reset() {
+	*x = DeleteSensorResponse{}
+	mi := &file_simulator_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteSensorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteSensorResponse) ProtoMessage() {}
+
+func (x *DeleteSensorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteSensorResponse.ProtoReflect.Descriptor instead.
+func (*DeleteSensorResponse) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{19}
+}
+
+type StartRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartRequest) Reset() {
+	*x = StartRequest{}
+	mi := &file_simulator_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartRequest) ProtoMessage() {}
+
+func (x *StartRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartRequest.ProtoReflect.Descriptor instead.
+func (*StartRequest) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{20}
+}
+
+type StartResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StartResponse) Reset() {
+	*x = StartResponse{}
+	mi := &file_simulator_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StartResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StartResponse) ProtoMessage() {}
+
+func (x *StartResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StartResponse.ProtoReflect.Descriptor instead.
+func (*StartResponse) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{21}
+}
+
+type StopRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopRequest) Reset() {
+	*x = StopRequest{}
+	mi := &file_simulator_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopRequest) ProtoMessage() {}
+
+func (x *StopRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopRequest.ProtoReflect.Descriptor instead.
+func (*StopRequest) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{22}
+}
+
+type StopResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StopResponse) Reset() {
+	*x = StopResponse{}
+	mi := &file_simulator_proto_msgTypes[23]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StopResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StopResponse) ProtoMessage() {}
+
+func (x *StopResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_simulator_proto_msgTypes[23]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StopResponse.ProtoReflect.Descriptor instead.
+func (*StopResponse) Descriptor() ([]byte, []int) {
+	return file_simulator_proto_rawDescGZIP(), []int{23}
 }
 
 var File_simulator_proto protoreflect.FileDescriptor
@@ -1243,7 +1634,7 @@ const file_simulator_proto_rawDesc = "" +
 	"\n" +
 	"min_period\x18\x04 \x01(\v2\x19.google.protobuf.DurationR\tminPeriod\x128\n" +
 	"\n" +
-	"max_period\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\tmaxPeriod\"\xe2\x05\n" +
+	"max_period\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\tmaxPeriod\"\xa3\x06\n" +
 	"\bModifier\x12+\n" +
 	"\x04type\x18\x01 \x01(\x0e2\x17.simulator.ModifierTypeR\x04type\x12F\n" +
 	"\fconst_offset\x18\x02 \x01(\v2!.simulator.ConstantOffsetModifierH\x00R\vconstOffset\x12?\n" +
@@ -1258,17 +1649,20 @@ const file_simulator_proto_rawDesc = "" +
 	"\x11random_fixed_dash\x18\t \x01(\v2\".simulator.RandomFixedDashModifierH\x00R\x0frandomFixedDash\x12@\n" +
 	"\vwhite_noise\x18\n" +
 	" \x01(\v2\x1d.simulator.WhiteNoiseModifierH\x00R\n" +
-	"whiteNoiseB\v\n" +
+	"whiteNoise\x12?\n" +
+	"\n" +
+	"dependence\x18\v \x01(\v2\x1d.simulator.DependenceModifierH\x00R\n" +
+	"dependenceB\v\n" +
 	"\ttype_data\"0\n" +
 	"\x16ConstantOffsetModifier\x12\x16\n" +
 	"\x06offset\x18\x01 \x01(\x01R\x06offset\"4\n" +
 	"\x12HysteresisModifier\x12\x1e\n" +
 	"\n" +
-	"percentage\x18\x01 \x01(\rR\n" +
-	"percentage\"@\n" +
+	"percentage\x18\x01 \x01(\x04R\n" +
+	"percentage\"[\n" +
 	"\x10InertitaModifier\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\x01R\x05value\x12\x16\n" +
-	"\x06period\x18\x02 \x01(\x01R\x06period\"W\n" +
+	"\x05value\x18\x01 \x01(\x01R\x05value\x121\n" +
+	"\x06period\x18\x02 \x01(\v2\x19.google.protobuf.DurationR\x06period\"W\n" +
 	"\x1bNonLinearDependenceModifier\x12 \n" +
 	"\vcoefficient\x18\x01 \x01(\x01R\vcoefficient\x12\x16\n" +
 	"\x06center\x18\x02 \x01(\x01R\x06center\"h\n" +
@@ -1294,11 +1688,26 @@ const file_simulator_proto_rawDesc = "" +
 	"avg_period\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\tavgPeriod\"`\n" +
 	"\x12WhiteNoiseModifier\x12-\n" +
 	"\tgenerator\x18\x01 \x01(\v2\x0f.simulator.PrngR\tgenerator\x12\x1b\n" +
-	"\tmax_value\x18\x02 \x01(\x01R\bmaxValue\"w\n" +
+	"\tmax_value\x18\x02 \x01(\x01R\bmaxValue\"u\n" +
+	"\x12DependenceModifier\x12%\n" +
+	"\x0esimulator_name\x18\x01 \x01(\tR\rsimulatorName\x12\x16\n" +
+	"\x06center\x18\x02 \x01(\x01R\x06center\x12 \n" +
+	"\vcoefficient\x18\x03 \x01(\x01R\vcoefficient\"\x91\x01\n" +
 	"\tSimulator\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12#\n" +
-	"\x04base\x18\x02 \x01(\v2\x0f.simulator.BaseR\x04base\x121\n" +
-	"\tmodifiers\x18\x03 \x03(\v2\x13.simulator.ModifierR\tmodifiers*K\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
+	"\aaddress\x18\x02 \x01(\rR\aaddress\x12#\n" +
+	"\x04base\x18\x03 \x01(\v2\x0f.simulator.BaseR\x04base\x121\n" +
+	"\tmodifiers\x18\x04 \x03(\v2\x13.simulator.ModifierR\tmodifiers\"F\n" +
+	"\x10AddSensorRequest\x122\n" +
+	"\tsimulator\x18\x01 \x01(\v2\x14.simulator.SimulatorR\tsimulator\"\x13\n" +
+	"\x11AddSensorResponse\")\n" +
+	"\x13DeleteSensorRequest\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\"\x16\n" +
+	"\x14DeleteSensorResponse\"\x0e\n" +
+	"\fStartRequest\"\x0f\n" +
+	"\rStartResponse\"\r\n" +
+	"\vStopRequest\"\x0e\n" +
+	"\fStopResponse*K\n" +
 	"\bPrngType\x12\x15\n" +
 	"\x11PRNG_TYPE_UNKNOWN\x10\x00\x12\x11\n" +
 	"\rPRNG_TYPE_PCG\x10\x01\x12\x15\n" +
@@ -1308,7 +1717,7 @@ const file_simulator_proto_rawDesc = "" +
 	"\x10BASE_TYPE_BEZIER\x10\x01\x12\x16\n" +
 	"\x12BASE_TYPE_CONSTANT\x10\x02\x12\x14\n" +
 	"\x10BASE_TYPE_LINEAR\x10\x03\x12\x16\n" +
-	"\x12BASE_TYPE_SINEWAVE\x10\x04*\xda\x02\n" +
+	"\x12BASE_TYPE_SINEWAVE\x10\x04*\xf8\x02\n" +
 	"\fModifierType\x12\x19\n" +
 	"\x15MODIFIER_TYPE_UNKNOWN\x10\x00\x12!\n" +
 	"\x1dMODIFIER_TYPE_CONSTANT_OFFSET\x10\x01\x12\x1c\n" +
@@ -1319,7 +1728,14 @@ const file_simulator_proto_rawDesc = "" +
 	"\x1aMODIFIER_TYPE_QUANTIZATION\x10\x06\x12!\n" +
 	"\x1dMODIFIER_TYPE_RANDOM_ADD_DASH\x10\a\x12#\n" +
 	"\x1fMODIFIER_TYPE_RANDOM_FIXED_DASH\x10\b\x12\x1d\n" +
-	"\x19MODIFIER_TYPE_WHITE_NOISE\x10\tB\"Z sensor_simulator/proto/simulatorb\x06proto3"
+	"\x19MODIFIER_TYPE_WHITE_NOISE\x10\t\x12\x1c\n" +
+	"\x18MODIFIER_TYPE_DEPENDENCE\x10\n" +
+	"2\xa6\x02\n" +
+	"\x16SensorSimulatorService\x12F\n" +
+	"\tAddSensor\x12\x1b.simulator.AddSensorRequest\x1a\x1c.simulator.AddSensorResponse\x12O\n" +
+	"\fDeleteSensor\x12\x1e.simulator.DeleteSensorRequest\x1a\x1f.simulator.DeleteSensorResponse\x12:\n" +
+	"\x05Start\x12\x17.simulator.StartRequest\x1a\x18.simulator.StartResponse\x127\n" +
+	"\x04Stop\x12\x16.simulator.StopRequest\x1a\x17.simulator.StopResponseB\"Z sensor_simulator/proto/simulatorb\x06proto3"
 
 var (
 	file_simulator_proto_rawDescOnce sync.Once
@@ -1334,7 +1750,7 @@ func file_simulator_proto_rawDescGZIP() []byte {
 }
 
 var file_simulator_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
-var file_simulator_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_simulator_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_simulator_proto_goTypes = []any{
 	(PrngType)(0),                       // 0: simulator.PrngType
 	(BaseType)(0),                       // 1: simulator.BaseType
@@ -1353,8 +1769,17 @@ var file_simulator_proto_goTypes = []any{
 	(*RandomAddDashModifier)(nil),       // 14: simulator.RandomAddDashModifier
 	(*RandomFixedDashModifier)(nil),     // 15: simulator.RandomFixedDashModifier
 	(*WhiteNoiseModifier)(nil),          // 16: simulator.WhiteNoiseModifier
-	(*Simulator)(nil),                   // 17: simulator.Simulator
-	(*durationpb.Duration)(nil),         // 18: google.protobuf.Duration
+	(*DependenceModifier)(nil),          // 17: simulator.DependenceModifier
+	(*Simulator)(nil),                   // 18: simulator.Simulator
+	(*AddSensorRequest)(nil),            // 19: simulator.AddSensorRequest
+	(*AddSensorResponse)(nil),           // 20: simulator.AddSensorResponse
+	(*DeleteSensorRequest)(nil),         // 21: simulator.DeleteSensorRequest
+	(*DeleteSensorResponse)(nil),        // 22: simulator.DeleteSensorResponse
+	(*StartRequest)(nil),                // 23: simulator.StartRequest
+	(*StartResponse)(nil),               // 24: simulator.StartResponse
+	(*StopRequest)(nil),                 // 25: simulator.StopRequest
+	(*StopResponse)(nil),                // 26: simulator.StopResponse
+	(*durationpb.Duration)(nil),         // 27: google.protobuf.Duration
 }
 var file_simulator_proto_depIdxs = []int32{
 	0,  // 0: simulator.Prng.type:type_name -> simulator.PrngType
@@ -1362,8 +1787,8 @@ var file_simulator_proto_depIdxs = []int32{
 	5,  // 2: simulator.Base.constant:type_name -> simulator.ConstantBase
 	6,  // 3: simulator.Base.common:type_name -> simulator.CommonBase
 	3,  // 4: simulator.CommonBase.generator:type_name -> simulator.Prng
-	18, // 5: simulator.CommonBase.min_period:type_name -> google.protobuf.Duration
-	18, // 6: simulator.CommonBase.max_period:type_name -> google.protobuf.Duration
+	27, // 5: simulator.CommonBase.min_period:type_name -> google.protobuf.Duration
+	27, // 6: simulator.CommonBase.max_period:type_name -> google.protobuf.Duration
 	2,  // 7: simulator.Modifier.type:type_name -> simulator.ModifierType
 	8,  // 8: simulator.Modifier.const_offset:type_name -> simulator.ConstantOffsetModifier
 	9,  // 9: simulator.Modifier.hysteresis:type_name -> simulator.HysteresisModifier
@@ -1374,23 +1799,34 @@ var file_simulator_proto_depIdxs = []int32{
 	14, // 14: simulator.Modifier.random_add_dash:type_name -> simulator.RandomAddDashModifier
 	15, // 15: simulator.Modifier.random_fixed_dash:type_name -> simulator.RandomFixedDashModifier
 	16, // 16: simulator.Modifier.white_noise:type_name -> simulator.WhiteNoiseModifier
-	18, // 17: simulator.ProgressingOffsetModifier.interval:type_name -> google.protobuf.Duration
-	3,  // 18: simulator.RandomAddDashModifier.generator:type_name -> simulator.Prng
-	18, // 19: simulator.RandomAddDashModifier.min_dash_duration:type_name -> google.protobuf.Duration
-	18, // 20: simulator.RandomAddDashModifier.max_dash_duration:type_name -> google.protobuf.Duration
-	18, // 21: simulator.RandomAddDashModifier.avg_period:type_name -> google.protobuf.Duration
-	3,  // 22: simulator.RandomFixedDashModifier.generator:type_name -> simulator.Prng
-	18, // 23: simulator.RandomFixedDashModifier.min_dash_duration:type_name -> google.protobuf.Duration
-	18, // 24: simulator.RandomFixedDashModifier.max_dash_duration:type_name -> google.protobuf.Duration
-	18, // 25: simulator.RandomFixedDashModifier.avg_period:type_name -> google.protobuf.Duration
-	3,  // 26: simulator.WhiteNoiseModifier.generator:type_name -> simulator.Prng
-	4,  // 27: simulator.Simulator.base:type_name -> simulator.Base
-	7,  // 28: simulator.Simulator.modifiers:type_name -> simulator.Modifier
-	29, // [29:29] is the sub-list for method output_type
-	29, // [29:29] is the sub-list for method input_type
-	29, // [29:29] is the sub-list for extension type_name
-	29, // [29:29] is the sub-list for extension extendee
-	0,  // [0:29] is the sub-list for field type_name
+	17, // 17: simulator.Modifier.dependence:type_name -> simulator.DependenceModifier
+	27, // 18: simulator.InertitaModifier.period:type_name -> google.protobuf.Duration
+	27, // 19: simulator.ProgressingOffsetModifier.interval:type_name -> google.protobuf.Duration
+	3,  // 20: simulator.RandomAddDashModifier.generator:type_name -> simulator.Prng
+	27, // 21: simulator.RandomAddDashModifier.min_dash_duration:type_name -> google.protobuf.Duration
+	27, // 22: simulator.RandomAddDashModifier.max_dash_duration:type_name -> google.protobuf.Duration
+	27, // 23: simulator.RandomAddDashModifier.avg_period:type_name -> google.protobuf.Duration
+	3,  // 24: simulator.RandomFixedDashModifier.generator:type_name -> simulator.Prng
+	27, // 25: simulator.RandomFixedDashModifier.min_dash_duration:type_name -> google.protobuf.Duration
+	27, // 26: simulator.RandomFixedDashModifier.max_dash_duration:type_name -> google.protobuf.Duration
+	27, // 27: simulator.RandomFixedDashModifier.avg_period:type_name -> google.protobuf.Duration
+	3,  // 28: simulator.WhiteNoiseModifier.generator:type_name -> simulator.Prng
+	4,  // 29: simulator.Simulator.base:type_name -> simulator.Base
+	7,  // 30: simulator.Simulator.modifiers:type_name -> simulator.Modifier
+	18, // 31: simulator.AddSensorRequest.simulator:type_name -> simulator.Simulator
+	19, // 32: simulator.SensorSimulatorService.AddSensor:input_type -> simulator.AddSensorRequest
+	21, // 33: simulator.SensorSimulatorService.DeleteSensor:input_type -> simulator.DeleteSensorRequest
+	23, // 34: simulator.SensorSimulatorService.Start:input_type -> simulator.StartRequest
+	25, // 35: simulator.SensorSimulatorService.Stop:input_type -> simulator.StopRequest
+	20, // 36: simulator.SensorSimulatorService.AddSensor:output_type -> simulator.AddSensorResponse
+	22, // 37: simulator.SensorSimulatorService.DeleteSensor:output_type -> simulator.DeleteSensorResponse
+	24, // 38: simulator.SensorSimulatorService.Start:output_type -> simulator.StartResponse
+	26, // 39: simulator.SensorSimulatorService.Stop:output_type -> simulator.StopResponse
+	36, // [36:40] is the sub-list for method output_type
+	32, // [32:36] is the sub-list for method input_type
+	32, // [32:32] is the sub-list for extension type_name
+	32, // [32:32] is the sub-list for extension extendee
+	0,  // [0:32] is the sub-list for field type_name
 }
 
 func init() { file_simulator_proto_init() }
@@ -1412,6 +1848,7 @@ func file_simulator_proto_init() {
 		(*Modifier_RandomAddDash)(nil),
 		(*Modifier_RandomFixedDash)(nil),
 		(*Modifier_WhiteNoise)(nil),
+		(*Modifier_Dependence)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -1419,9 +1856,9 @@ func file_simulator_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_simulator_proto_rawDesc), len(file_simulator_proto_rawDesc)),
 			NumEnums:      3,
-			NumMessages:   15,
+			NumMessages:   24,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_simulator_proto_goTypes,
 		DependencyIndexes: file_simulator_proto_depIdxs,

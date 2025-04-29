@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Quantization struct {
@@ -19,7 +19,7 @@ func NewQuantizationModifier(
 
 func (q *Quantization) Restart() {}
 
-func (q *Quantization) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (q *Quantization) ApplyModifier(point state.PointState) state.PointState {
 	point.Value = q.quant * math.Round(point.Value/q.quant)
 	return point
 }

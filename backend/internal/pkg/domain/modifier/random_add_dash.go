@@ -2,29 +2,36 @@ package modifier
 
 import (
 	"fmt"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
-type RandomFixedDash struct {
-	prng       Generator
-	fixedValue float64
+type RandomAddDash struct {
+	prng        Generator
+	minAddValue float64
+	maxAddValue float64
 
 	maxDashTicks   uint64
 	minDashTicks   uint64
 	avgTicksPeriod uint64
 
+	addValue      float64
 	dashTicksLeft uint64
 }
 
-func NewRandomFixedDashModifier(
+func NewRandomAddDashModifier(
 	prng Generator,
-	fixedValue float64,
 	maxDashTicks uint64,
 	minDashTicks uint64,
 	avgTicksPeriod uint64,
-) (*RandomFixedDash, error) {
+	minAddValue float64,
+	maxAddValue float64,
+) (*RandomAddDash, error) {
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
+	}
+
+	if maxAddValue < minAddValue {
+		return nil, fmt.Errorf("max add value must be greater or equal then min add value")
 	}
 
 	if maxDashTicks < minDashTicks {
@@ -35,28 +42,30 @@ func NewRandomFixedDashModifier(
 		return nil, fmt.Errorf("max dash ticks must be lower then dash period in average ticks")
 	}
 
-	return &RandomFixedDash{
+	return &RandomAddDash{
 		prng:           prng,
-		fixedValue:     fixedValue,
 		maxDashTicks:   maxDashTicks,
 		minDashTicks:   minDashTicks,
 		avgTicksPeriod: avgTicksPeriod,
-		dashTicksLeft:  0,
+		minAddValue:    minAddValue,
+		maxAddValue:    maxAddValue,
 	}, nil
 }
 
-func (r *RandomFixedDash) Restart() {
+func (r *RandomAddDash) Restart() {
 	r.prng.Restart()
+	r.addValue = 0
 	r.dashTicksLeft = 0
 }
 
-func (r *RandomFixedDash) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (r *RandomAddDash) ApplyModifier(point state.PointState) state.PointState {
 	if r.prng.NextZeroToOne() < 1.0/float64(r.avgTicksPeriod) {
 		r.dashTicksLeft = uint64(float64(r.maxDashTicks-r.minDashTicks)*r.prng.NextZeroToOne()) + r.minDashTicks
+		r.addValue = (r.maxAddValue-r.minAddValue)*r.prng.NextZeroToOne() + r.minAddValue
 	}
 
 	if r.dashTicksLeft > 0 {
-		point.Value = r.fixedValue
+		point.Value += r.addValue
 		r.dashTicksLeft--
 	}
 

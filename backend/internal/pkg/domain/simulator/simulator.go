@@ -2,8 +2,8 @@ package simulator
 
 import (
 	"fmt"
-	domain "sensor-simulator/internal/pkg/domain/simulator"
-	"sensor-simulator/internal/pkg/measurement/base"
+	"sensor-simulator/internal/pkg/domain/base"
+	domain "sensor-simulator/internal/pkg/domain/state"
 	"sync"
 	"time"
 )

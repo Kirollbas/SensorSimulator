@@ -1,8 +1,6 @@
 package modifier
 
-import (
-	"sensor-simulator/internal/pkg/domain/simulator"
-)
+import "sensor-simulator/internal/pkg/domain/state"
 
 type ProgressingOffset struct {
 	offsetChange float64
@@ -30,7 +28,7 @@ func (po *ProgressingOffset) Restart() {
 	po.currentTick = 0
 }
 
-func (po *ProgressingOffset) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (po *ProgressingOffset) ApplyModifier(point state.PointState) state.PointState {
 	if po.currentTick >= po.ticksToChange {
 		po.currentTick = 0
 		po.offset += po.offsetChange

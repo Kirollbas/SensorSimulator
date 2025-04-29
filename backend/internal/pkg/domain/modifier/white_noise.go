@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"fmt"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Generator interface {
@@ -33,7 +33,7 @@ func (wn *WhiteNoise) Restart() {
 	wn.prng.Restart()
 }
 
-func (wn *WhiteNoise) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (wn *WhiteNoise) ApplyModifier(point state.PointState) state.PointState {
 	point.Value += wn.maxOffset*2*wn.prng.NextZeroToOne() - 1
 	return point
 }

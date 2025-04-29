@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Hysteresis struct {
@@ -25,12 +25,12 @@ func (h *Hysteresis) Restart() {
 	h.ticksCenter = 0
 }
 
-func (h *Hysteresis) UpdateState(state simulator.SimulatorBaseState) {
-	h.maxHysteresis = h.percentage * (state.NextPoint - state.PreviousPoint) / 2
+func (h *Hysteresis) UpdateState(state state.SimulatorBaseState) {
+	h.maxHysteresis = h.percentage * (state.NextPoint - state.PreviousPoint)
 	h.ticksCenter = state.TicksDistance / 2
 }
 
-func (h *Hysteresis) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (h *Hysteresis) ApplyModifier(point state.PointState) state.PointState {
 	point.Value += h.maxHysteresis *
 		(1 - math.Pow(math.Abs(float64(h.ticksCenter)-float64(point.Tick))/float64(h.ticksCenter), 2))
 

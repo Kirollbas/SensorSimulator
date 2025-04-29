@@ -1,6 +1,8 @@
 package base
 
-import "sensor-simulator/internal/pkg/domain/simulator"
+import (
+	"sensor-simulator/internal/pkg/domain/state"
+)
 
 type ConstantSimulator struct {
 	value float64
@@ -14,8 +16,8 @@ func NewConstantSimulator(
 	}
 }
 
-func (c *ConstantSimulator) Iterate() simulator.PointState {
-	return simulator.PointState{
+func (c *ConstantSimulator) Iterate() state.PointState {
+	return state.PointState{
 		BaseValue: c.value,
 		Value:     c.value,
 		Tick:      0,

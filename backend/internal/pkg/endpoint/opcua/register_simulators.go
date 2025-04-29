@@ -1,12 +1,13 @@
 package opcua
 
 import (
+	"sensor-simulator/internal/pkg/domain/simulator"
 	"sensor-simulator/internal/pkg/endpoint/opcua/node"
 
 	"github.com/gopcua/opcua/id"
 )
 
-func (s *Server) registerSimulators(simulators []Simulator) {
+func (s *Server) registerSimulators(simulators []*simulator.Simulator) {
 	for _, simulator := range simulators {
 		name := simulator.GetName()
 		nns_obj := s.commonNamespace.Objects()

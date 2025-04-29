@@ -3,7 +3,7 @@ package base
 import (
 	"fmt"
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Generator interface {
@@ -12,7 +12,7 @@ type Generator interface {
 }
 
 type StateSubscriber interface {
-	UpdateState(state simulator.SimulatorBaseState)
+	UpdateState(state state.SimulatorBaseState)
 }
 
 type BezierSimulator struct {
@@ -21,6 +21,7 @@ type BezierSimulator struct {
 
 	minValue            float64
 	maxValue            float64
+	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
 	currentValue float64
@@ -35,6 +36,7 @@ func NewBezierSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
+	minTicksUntilChange uint64,
 	maxTicksUntilChange uint64,
 ) (*BezierSimulator, error) {
 	if prng == nil {
@@ -43,6 +45,10 @@ func NewBezierSimulator(
 
 	if maxTicksUntilChange == 0 {
 		return nil, fmt.Errorf("max ticks until next point change must be grater then zero")
+	}
+
+	if maxTicksUntilChange < minTicksUntilChange {
+		return nil, fmt.Errorf("min ticks must be lower then max ticks")
 	}
 
 	if minValue > maxValue {
@@ -56,6 +62,7 @@ func NewBezierSimulator(
 		stateSubscribers:    make([]StateSubscriber, 0),
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
 		startPoint:          centerValue,
@@ -78,15 +85,15 @@ func (b *BezierSimulator) AddStateSubscriber(subscriber StateSubscriber) {
 	b.stateSubscribers = append(b.stateSubscribers, subscriber)
 }
 
-func (b *BezierSimulator) Iterate() simulator.PointState {
+func (b *BezierSimulator) Iterate() state.PointState {
 	if b.currentTick >= b.distanceTicks {
 		newDestination := (b.maxValue-b.minValue)*b.prng.NextZeroToOne() + b.minValue
-		newTicks := uint(float64(b.maxTicksUntilChange) * b.prng.NextZeroToOne())
+		newTicks := uint64(float64(b.maxTicksUntilChange-b.minTicksUntilChange)*b.prng.NextZeroToOne()) + b.minTicksUntilChange
 
-		state := simulator.SimulatorBaseState{
+		state := state.SimulatorBaseState{
 			PreviousPoint: b.endPoint,
 			NextPoint:     newDestination,
-			TicksDistance: uint64(newTicks),
+			TicksDistance: newTicks,
 		}
 		for _, subscriber := range b.stateSubscribers {
 			subscriber.UpdateState(state)
@@ -108,7 +115,7 @@ func (b *BezierSimulator) Iterate() simulator.PointState {
 	b.currentValue = newValue
 	b.currentTick++
 
-	return simulator.PointState{
+	return state.PointState{
 		BaseValue: newValue,
 		Value:     newValue,
 		Tick:      b.currentTick,

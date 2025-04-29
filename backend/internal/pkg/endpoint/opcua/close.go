@@ -1,13 +1,18 @@
 package opcua
 
 import (
+	"fmt"
+
 	"github.com/gopcua/opcua/id"
 	"github.com/gopcua/opcua/server"
 	"github.com/gopcua/opcua/ua"
 )
 
-func (s *Server) Close() {
-	s.server.Close()
+func (s *Server) Close() error {
+	err := s.server.Close()
+	if err != nil {
+		return fmt.Errorf("unable to stop opcua server. Err:%w", err)
+	}
 
 	host := "localhost"
 	port := 46010
@@ -30,4 +35,6 @@ func (s *Server) Close() {
 	root_obj_node.AddRef(nns_obj, id.HasComponent, true)
 
 	s.commonNamespace = nodeNS
+
+	return nil
 }

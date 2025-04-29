@@ -3,16 +3,10 @@ package modbus
 import (
 	"fmt"
 	"sensor-simulator/internal/pkg/endpoint/modbus/handler"
-	"sensor-simulator/internal/pkg/measurement/simulator"
 	"time"
 
 	"github.com/simonvetter/modbus"
 )
-
-type Simulator interface {
-	GetAddress() uint16
-	AddEndpointUpdater(simulator.EndpointUpdater)
-}
 
 type Server struct {
 	server  *modbus.ModbusServer

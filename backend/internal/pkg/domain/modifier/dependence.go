@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"fmt"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Simulator interface {
@@ -33,7 +33,7 @@ func NewDependenceModifier(
 
 func (o *Dependence) Restart() {}
 
-func (o *Dependence) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (o *Dependence) ApplyModifier(point state.PointState) state.PointState {
 	point.Value += o.coefficient * (point.Value - o.dependenceCenter)
 	return point
 }

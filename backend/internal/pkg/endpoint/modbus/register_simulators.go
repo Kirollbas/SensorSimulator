@@ -3,10 +3,11 @@ package modbus
 import (
 	"fmt"
 	"math"
+	"sensor-simulator/internal/pkg/domain/simulator"
 	"sensor-simulator/internal/pkg/endpoint/modbus/node"
 )
 
-func (s *Server) registerSimulators(simulators []Simulator) error {
+func (s *Server) registerSimulators(simulators []*simulator.Simulator) error {
 	checkMap := make(map[int]struct{})
 
 	for _, simulator := range simulators {

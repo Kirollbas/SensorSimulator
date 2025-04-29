@@ -56,6 +56,7 @@ enum ModifierType {
     MODIFIER_TYPE_RANDOM_ADD_DASH = 7;
     MODIFIER_TYPE_RANDOM_FIXED_DASH = 8;
     MODIFIER_TYPE_WHITE_NOISE = 9;
+    MODIFIER_TYPE_DEPENDENCE = 10;
 }
 
 message Modifier {
@@ -70,6 +71,7 @@ message Modifier {
         RandomAddDashModifier random_add_dash = 8;
         RandomFixedDashModifier random_fixed_dash = 9;
         WhiteNoiseModifier white_noise = 10;
+        DependenceModifier dependence = 11;
     }
 }
 
@@ -78,12 +80,12 @@ message ConstantOffsetModifier {
 }
 
 message HysteresisModifier {
-    uint32 percentage = 1;
+    uint64 percentage = 1;
 }
 
 message InertitaModifier {
     double value = 1;
-    double period = 2;
+    google.protobuf.Duration period = 2;
 }
 
 message NonLinearDependenceModifier {
@@ -122,31 +124,43 @@ message WhiteNoiseModifier {
     double max_value = 2;
 }
 
+message DependenceModifier {
+    string simulator_name = 1;
+    double center = 2;
+    double coefficient = 3;
+}
+
 message Simulator {
     string name = 1;
-    Base base = 2;
-    repeated Modifier modifiers = 3;
+    uint32 address = 2;
+    Base base = 3;
+    repeated Modifier modifiers = 4;
 }
 
 service SensorSimulatorService {
   rpc AddSensor(AddSensorRequest) returns (AddSensorResponse);
-//   rpc GetConfig(GetConfigRequest) returns (GetConfigResponse);
-//   rpc SetFromConfig(SetFromConfigRequest) returns (SetFromConfigResponse);
-//   rpc Delete(DeleteRequest) returns (DeleteResponse);
+  rpc DeleteSensor(DeleteSensorRequest) returns (DeleteSensorResponse);
+  rpc Start(StartRequest) returns (StartResponse);
+  rpc Stop(StopRequest) returns (StopResponse);
 }
 
 message AddSensorRequest {
     Simulator simulator = 1;
 }
 
-message AddSensorResponse {
-    
+message AddSensorResponse {}
+
+message DeleteSensorRequest {
+    string name = 1;
 }
 
-// message GetConfigRequest {
-// }
+message DeleteSensorResponse {}
 
-// message GetConfigResponse {
-//     Simulator simulator = 1;
-// }
+message StartRequest {}
+
+message StartResponse {}
+
+message StopRequest {}
+
+message StopResponse {}
 

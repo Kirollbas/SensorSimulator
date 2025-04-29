@@ -3,7 +3,7 @@ package base
 import (
 	"fmt"
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type SineWaveSimulator struct {
@@ -12,6 +12,7 @@ type SineWaveSimulator struct {
 
 	minValue            float64
 	maxValue            float64
+	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
 	currentValue float64
@@ -27,6 +28,7 @@ func NewSineWaveSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
+	minTicksUntilChange uint64,
 	maxTicksUntilChange uint64,
 ) (*SineWaveSimulator, error) {
 	if prng == nil {
@@ -35,6 +37,10 @@ func NewSineWaveSimulator(
 
 	if maxTicksUntilChange == 0 {
 		return nil, fmt.Errorf("max ticks until next point change must be grater then zero")
+	}
+
+	if maxTicksUntilChange < minTicksUntilChange {
+		return nil, fmt.Errorf("min ticks must be lower then max ticks")
 	}
 
 	if minValue > maxValue {
@@ -47,6 +53,7 @@ func NewSineWaveSimulator(
 		prng:                prng,
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
 		startPoint:          centerValue,
@@ -68,12 +75,12 @@ func (s *SineWaveSimulator) AddStateSubscriber(subscriber StateSubscriber) {
 	s.stateSubscribers = append(s.stateSubscribers, subscriber)
 }
 
-func (s *SineWaveSimulator) Iterate() simulator.PointState {
+func (s *SineWaveSimulator) Iterate() state.PointState {
 	if s.currentTick >= s.distanceTicks {
 		newDestination := (s.maxValue-s.minValue)*s.prng.NextZeroToOne() + s.minValue
-		newTicks := uint(float64(s.maxTicksUntilChange) * s.prng.NextZeroToOne())
+		newTicks := uint64(float64(s.maxTicksUntilChange-s.minTicksUntilChange)*s.prng.NextZeroToOne()) + s.minTicksUntilChange
 
-		state := simulator.SimulatorBaseState{
+		state := state.SimulatorBaseState{
 			PreviousPoint: s.endPoint,
 			NextPoint:     newDestination,
 			TicksDistance: uint64(newTicks),
@@ -96,7 +103,7 @@ func (s *SineWaveSimulator) Iterate() simulator.PointState {
 	s.currentValue = newValue
 	s.currentTick++
 
-	return simulator.PointState{
+	return state.PointState{
 		BaseValue: newValue,
 		Value:     newValue,
 		Tick:      s.currentTick,

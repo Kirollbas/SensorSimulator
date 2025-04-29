@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type Inertia struct {
@@ -26,7 +26,7 @@ func (i *Inertia) Restart() {
 	i.currentValue = i.startValue
 }
 
-func (i *Inertia) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (i *Inertia) ApplyModifier(point state.PointState) state.PointState {
 	diff := point.Value - i.currentValue
 
 	if math.Abs(diff) > i.maxChangePerTick {

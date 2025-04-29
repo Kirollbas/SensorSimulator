@@ -2,7 +2,7 @@ package modifier
 
 import (
 	"math"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type NonLinear struct {
@@ -22,7 +22,7 @@ func NewNonLinearModifier(
 
 func (nl *NonLinear) Restart() {}
 
-func (nl *NonLinear) ApplyModifier(point simulator.PointState) simulator.PointState {
+func (nl *NonLinear) ApplyModifier(point state.PointState) state.PointState {
 	diff := point.Value - nl.center
 
 	point.Value += nl.coefficient * math.Pow(diff, 2) * math.Copysign(1.0, diff)

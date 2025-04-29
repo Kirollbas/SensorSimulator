@@ -1,11 +1,7 @@
 package main
 
-import (
-	"fmt"
-	"sensor-simulator/internal/pkg/endpoint/opcua"
-)
+import "sensor-simulator/cmd/main/app"
 
 func main() {
-	fmt.Println("hello")
-	opcua.Start()
+	app.App()
 }

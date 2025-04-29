@@ -2,7 +2,7 @@ package base
 
 import (
 	"fmt"
-	"sensor-simulator/internal/pkg/domain/simulator"
+	"sensor-simulator/internal/pkg/domain/state"
 )
 
 type LinearSimulator struct {
@@ -11,6 +11,7 @@ type LinearSimulator struct {
 
 	minValue            float64
 	maxValue            float64
+	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
 	currentValue float64
@@ -25,10 +26,15 @@ func NewLinearSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
+	minTicksUntilChange uint64,
 	maxTicksUntilChange uint64,
 ) (*LinearSimulator, error) {
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
+	}
+
+	if maxTicksUntilChange < minTicksUntilChange {
+		return nil, fmt.Errorf("min ticks must be lower then max ticks")
 	}
 
 	if maxTicksUntilChange == 0 {
@@ -46,6 +52,7 @@ func NewLinearSimulator(
 		stateSubscribers:    make([]StateSubscriber, 0),
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
 		nextPoint:           centerValue,
@@ -66,12 +73,12 @@ func (l *LinearSimulator) AddStateSubscriber(subscriber StateSubscriber) {
 	l.stateSubscribers = append(l.stateSubscribers, subscriber)
 }
 
-func (l *LinearSimulator) Iterate() simulator.PointState {
+func (l *LinearSimulator) Iterate() state.PointState {
 	if l.currentTick >= l.distanceTicks {
 		newDestination := (l.maxValue-l.minValue)*l.prng.NextZeroToOne() + l.minValue
-		newTicks := uint(float64(l.maxTicksUntilChange) * l.prng.NextZeroToOne())
+		newTicks := uint64(float64(l.maxTicksUntilChange-l.minTicksUntilChange)*l.prng.NextZeroToOne()) + l.minTicksUntilChange
 
-		state := simulator.SimulatorBaseState{
+		state := state.SimulatorBaseState{
 			PreviousPoint: l.nextPoint,
 			NextPoint:     newDestination,
 			TicksDistance: uint64(newTicks),
@@ -92,7 +99,7 @@ func (l *LinearSimulator) Iterate() simulator.PointState {
 	l.currentValue += l.speed
 	l.currentTick++
 
-	return simulator.PointState{
+	return state.PointState{
 		BaseValue: l.currentValue,
 		Value:     l.currentValue,
 		Tick:      l.currentTick,
