@@ -20,7 +20,12 @@ func NewHysteresisModifier(
 	}, nil
 }
 
-func (h *Hysteresis) UpdateState(state simulator.SimulatorState) {
+func (h *Hysteresis) Restart() {
+	h.maxHysteresis = 0
+	h.ticksCenter = 0
+}
+
+func (h *Hysteresis) UpdateState(state simulator.SimulatorBaseState) {
 	h.maxHysteresis = h.percentage * (state.NextPoint - state.PreviousPoint) / 2
 	h.ticksCenter = state.TicksDistance / 2
 }

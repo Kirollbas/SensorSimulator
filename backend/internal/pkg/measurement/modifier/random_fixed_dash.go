@@ -45,6 +45,11 @@ func NewRandomFixedDashModifier(
 	}, nil
 }
 
+func (r *RandomFixedDash) Restart() {
+	r.prng.Restart()
+	r.dashTicksLeft = 0
+}
+
 func (r *RandomFixedDash) ApplyModifier(point simulator.PointState) simulator.PointState {
 	if r.prng.NextZeroToOne() < 1.0/float64(r.avgTicksPeriod) {
 		r.dashTicksLeft = uint64(float64(r.maxDashTicks-r.minDashTicks)*r.prng.NextZeroToOne()) + r.minDashTicks

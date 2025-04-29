@@ -20,6 +20,8 @@ func NewNonLinearModifier(
 	}, nil
 }
 
+func (nl *NonLinear) Restart() {}
+
 func (nl *NonLinear) ApplyModifier(point simulator.PointState) simulator.PointState {
 	diff := point.Value - nl.center
 

@@ -16,7 +16,12 @@ func NewConstantSimulator(
 
 func (c *ConstantSimulator) Iterate() simulator.PointState {
 	return simulator.PointState{
-		Value: c.value,
-		Tick:  0,
+		BaseValue: c.value,
+		Value:     c.value,
+		Tick:      0,
 	}
 }
+
+func (c *ConstantSimulator) AddStateSubscriber(subscriber StateSubscriber) {}
+
+func (c *ConstantSimulator) Restart() {}

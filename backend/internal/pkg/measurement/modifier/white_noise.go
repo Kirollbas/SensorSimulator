@@ -7,6 +7,7 @@ import (
 
 type Generator interface {
 	NextZeroToOne() float64
+	Restart()
 }
 
 type WhiteNoise struct {
@@ -26,6 +27,10 @@ func NewWhiteNoiseModifier(
 		prng:      prng,
 		maxOffset: maxOffset,
 	}, nil
+}
+
+func (wn *WhiteNoise) Restart() {
+	wn.prng.Restart()
 }
 
 func (wn *WhiteNoise) ApplyModifier(point simulator.PointState) simulator.PointState {

@@ -7,12 +7,17 @@ import (
 )
 
 type Generator interface {
-	NextFloat() float64
 	NextZeroToOne() float64
+	Restart()
+}
+
+type StateSubscriber interface {
+	UpdateState(state simulator.SimulatorBaseState)
 }
 
 type BezierSimulator struct {
-	prng Generator
+	prng             Generator
+	stateSubscribers []StateSubscriber
 
 	minValue            float64
 	maxValue            float64
@@ -48,6 +53,7 @@ func NewBezierSimulator(
 
 	return &BezierSimulator{
 		prng:                prng,
+		stateSubscribers:    make([]StateSubscriber, 0),
 		minValue:            minValue,
 		maxValue:            maxValue,
 		maxTicksUntilChange: maxTicksUntilChange,
@@ -57,10 +63,34 @@ func NewBezierSimulator(
 	}, nil
 }
 
+func (b *BezierSimulator) Restart() {
+	centerValue := (b.maxValue - b.minValue) / 2
+
+	b.prng.Restart()
+	b.currentTick = 0
+	b.distanceTicks = 0
+	b.currentValue = centerValue
+	b.startPoint = centerValue
+	b.endPoint = centerValue
+}
+
+func (b *BezierSimulator) AddStateSubscriber(subscriber StateSubscriber) {
+	b.stateSubscribers = append(b.stateSubscribers, subscriber)
+}
+
 func (b *BezierSimulator) Iterate() simulator.PointState {
 	if b.currentTick >= b.distanceTicks {
 		newDestination := (b.maxValue-b.minValue)*b.prng.NextZeroToOne() + b.minValue
 		newTicks := uint(float64(b.maxTicksUntilChange) * b.prng.NextZeroToOne())
+
+		state := simulator.SimulatorBaseState{
+			PreviousPoint: b.endPoint,
+			NextPoint:     newDestination,
+			TicksDistance: uint64(newTicks),
+		}
+		for _, subscriber := range b.stateSubscribers {
+			subscriber.UpdateState(state)
+		}
 
 		b.distanceTicks = uint64(newTicks)
 		b.currentTick = 0
@@ -79,7 +109,8 @@ func (b *BezierSimulator) Iterate() simulator.PointState {
 	b.currentTick++
 
 	return simulator.PointState{
-		Value: newValue,
-		Tick:  b.currentTick,
+		BaseValue: newValue,
+		Value:     newValue,
+		Tick:      b.currentTick,
 	}
 }

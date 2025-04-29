@@ -20,7 +20,6 @@ type RandomAddDash struct {
 
 func NewRandomAddDashModifier(
 	prng Generator,
-	fixedValue float64,
 	maxDashTicks uint64,
 	minDashTicks uint64,
 	avgTicksPeriod uint64,
@@ -50,8 +49,13 @@ func NewRandomAddDashModifier(
 		avgTicksPeriod: avgTicksPeriod,
 		minAddValue:    minAddValue,
 		maxAddValue:    maxAddValue,
-		addValue:       minAddValue,
 	}, nil
+}
+
+func (r *RandomAddDash) Restart() {
+	r.prng.Restart()
+	r.addValue = 0
+	r.dashTicksLeft = 0
 }
 
 func (r *RandomAddDash) ApplyModifier(point simulator.PointState) simulator.PointState {

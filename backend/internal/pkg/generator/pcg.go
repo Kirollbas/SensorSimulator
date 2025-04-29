@@ -7,12 +7,14 @@ import (
 )
 
 type Pcg struct {
-	gen pcg.Rng
+	seed int64
+	gen  pcg.Rng
 }
 
 func NewPcg(seed int64) *Pcg {
 	pcg := Pcg{
-		gen: pcg.Rng{},
+		seed: seed,
+		gen:  pcg.Rng{},
 	}
 	pcg.gen.Seed(seed)
 
@@ -29,4 +31,8 @@ func (x *Pcg) NextFloat() float64 {
 
 func (x *Pcg) NextZeroToOne() float64 {
 	return float64(x.NextInt()) / float64(math.MaxInt64)
+}
+
+func (x *Pcg) Restart() {
+	x.gen.Seed(x.seed)
 }

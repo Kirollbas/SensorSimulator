@@ -1,14 +1,13 @@
 package simulator
 
-type SimulatorState struct {
+type SimulatorBaseState struct {
 	PreviousPoint float64
 	NextPoint     float64
 	TicksDistance uint64
-
-	PointState
 }
 
 type PointState struct {
-	Value float64
-	Tick  uint64
+	BaseValue float64
+	Value     float64
+	Tick      uint64
 }

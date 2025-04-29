@@ -25,6 +25,11 @@ func NewProgressingOffsetModifier(
 	}, nil
 }
 
+func (po *ProgressingOffset) Restart() {
+	po.offset = 0
+	po.currentTick = 0
+}
+
 func (po *ProgressingOffset) ApplyModifier(point simulator.PointState) simulator.PointState {
 	if po.currentTick >= po.ticksToChange {
 		po.currentTick = 0

@@ -7,7 +7,8 @@ import (
 )
 
 type SineWaveSimulator struct {
-	prng Generator
+	prng             Generator
+	stateSubscribers []StateSubscriber
 
 	minValue            float64
 	maxValue            float64
@@ -53,10 +54,33 @@ func NewSineWaveSimulator(
 	}, nil
 }
 
+func (s *SineWaveSimulator) Restart() {
+	centerValue := (s.maxValue - s.minValue) / 2
+
+	s.currentValue = centerValue
+	s.startPoint = centerValue
+	s.endPoint = centerValue
+	s.distanceTicks = 0
+	s.currentTick = 0
+}
+
+func (s *SineWaveSimulator) AddStateSubscriber(subscriber StateSubscriber) {
+	s.stateSubscribers = append(s.stateSubscribers, subscriber)
+}
+
 func (s *SineWaveSimulator) Iterate() simulator.PointState {
 	if s.currentTick >= s.distanceTicks {
 		newDestination := (s.maxValue-s.minValue)*s.prng.NextZeroToOne() + s.minValue
 		newTicks := uint(float64(s.maxTicksUntilChange) * s.prng.NextZeroToOne())
+
+		state := simulator.SimulatorBaseState{
+			PreviousPoint: s.endPoint,
+			NextPoint:     newDestination,
+			TicksDistance: uint64(newTicks),
+		}
+		for _, subscriber := range s.stateSubscribers {
+			subscriber.UpdateState(state)
+		}
 
 		s.distanceTicks = uint64(newTicks)
 		s.currentTick = 0
@@ -73,7 +97,8 @@ func (s *SineWaveSimulator) Iterate() simulator.PointState {
 	s.currentTick++
 
 	return simulator.PointState{
-		Value: newValue,
-		Tick:  s.currentTick,
+		BaseValue: newValue,
+		Value:     newValue,
+		Tick:      s.currentTick,
 	}
 }

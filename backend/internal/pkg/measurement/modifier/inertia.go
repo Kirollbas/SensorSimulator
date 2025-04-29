@@ -6,6 +6,7 @@ import (
 )
 
 type Inertia struct {
+	startValue       float64
 	maxChangePerTick float64
 	currentValue     float64
 }
@@ -15,9 +16,14 @@ func NewInertiaModifier(
 	startValue float64,
 ) (*Inertia, error) {
 	return &Inertia{
+		startValue:       startValue,
 		maxChangePerTick: maxChangePerTick,
 		currentValue:     startValue,
 	}, nil
+}
+
+func (i *Inertia) Restart() {
+	i.currentValue = i.startValue
 }
 
 func (i *Inertia) ApplyModifier(point simulator.PointState) simulator.PointState {

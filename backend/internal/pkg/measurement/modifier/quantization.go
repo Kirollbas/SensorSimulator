@@ -17,6 +17,8 @@ func NewQuantizationModifier(
 	}, nil
 }
 
+func (q *Quantization) Restart() {}
+
 func (q *Quantization) ApplyModifier(point simulator.PointState) simulator.PointState {
 	point.Value = q.quant * math.Round(point.Value/q.quant)
 	return point

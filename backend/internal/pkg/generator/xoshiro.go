@@ -7,12 +7,14 @@ import (
 )
 
 type Xoshiro struct {
-	gen xoshiro.Rng256P
+	seed int64
+	gen  xoshiro.Rng256P
 }
 
 func NewXoshiro(seed int64) *Xoshiro {
 	xoshiro := Xoshiro{
-		gen: xoshiro.Rng256P{},
+		seed: seed,
+		gen:  xoshiro.Rng256P{},
 	}
 	xoshiro.gen.Seed(seed)
 
@@ -29,4 +31,8 @@ func (x *Xoshiro) NextFloat() float64 {
 
 func (x *Xoshiro) NextZeroToOne() float64 {
 	return float64(x.NextInt()) / float64(math.MaxInt64)
+}
+
+func (x *Xoshiro) Restart() {
+	x.gen.Seed(x.seed)
 }
