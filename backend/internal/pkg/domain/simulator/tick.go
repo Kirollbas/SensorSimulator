@@ -1,7 +1,6 @@
 package simulator
 
 import (
-	"fmt"
 	"math"
 	"sync/atomic"
 )
@@ -20,6 +19,4 @@ func (s *Simulator) tick() {
 		updater.Update(point)
 	}
 
-	fmt.Printf("base %f\n", point.BaseValue) //TODO remove
-	fmt.Printf("modified %f\n", point.Value)
 }

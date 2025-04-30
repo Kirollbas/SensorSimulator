@@ -31,8 +31,8 @@ func (s *SimulatorService) simulatorFromPb(proto *pb.Simulator) (newSimulator *s
 
 	switch proto.Base.TypeData.(type) {
 	case *pb.Base_Common:
-		startValue = proto.Base.TypeData.(*pb.Base_Common).Common.GetMaxValue() -
-			proto.Base.TypeData.(*pb.Base_Common).Common.GetMinValue()
+		startValue = (proto.Base.TypeData.(*pb.Base_Common).Common.GetMaxValue() -
+			proto.Base.TypeData.(*pb.Base_Common).Common.GetMinValue()) / 2
 	case *pb.Base_Constant:
 		startValue = proto.Base.TypeData.(*pb.Base_Constant).Constant.GetValue()
 	}
@@ -104,7 +104,7 @@ func (s *SimulatorService) modifierFromPb(
 			return nil, nil, fmt.Errorf("unable to parse hysteresis modifier data")
 		}
 
-		speed := typeData.Inertia.GetValue() * float64(typeData.Inertia.GetPeriod().AsDuration()/frequency)
+		speed := typeData.Inertia.GetValue() * float64(frequency) / float64(typeData.Inertia.GetPeriod().AsDuration())
 
 		newModifier, err = modifier.NewInertiaModifier(speed, startValue)
 		return newModifier, nil, err

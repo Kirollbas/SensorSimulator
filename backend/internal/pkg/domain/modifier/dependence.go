@@ -31,9 +31,9 @@ func NewDependenceModifier(
 	}, nil
 }
 
-func (o *Dependence) Restart() {}
+func (d *Dependence) Restart() {}
 
-func (o *Dependence) ApplyModifier(point state.PointState) state.PointState {
-	point.Value += o.coefficient * (point.Value - o.dependenceCenter)
+func (d *Dependence) ApplyModifier(point state.PointState) state.PointState {
+	point.Value += d.coefficient * (d.simulator.GetBaseValue() - d.dependenceCenter)
 	return point
 }
