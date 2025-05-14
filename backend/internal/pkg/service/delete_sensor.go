@@ -29,5 +29,7 @@ func (s *SimulatorService) DeleteSensor(ctx context.Context, req *pb.DeleteSenso
 		}
 	}
 
+	delete(s.simulators, SimulatorName(req.GetName()))
+
 	return &pb.DeleteSensorResponse{}, nil
 }
