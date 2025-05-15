@@ -2,6 +2,7 @@ package modbus
 
 import (
 	"fmt"
+	"sensor-simulator/internal/config"
 	"sensor-simulator/internal/pkg/endpoint/modbus/handler"
 	"time"
 
@@ -16,10 +17,13 @@ type Server struct {
 func NewServer() (*Server, error) {
 	handler := handler.NewHandler()
 
+	config := config.GetConfig()
+	url := fmt.Sprintf("tcp://%s:%d", config.Modbus.Host, config.Modbus.Port)
+
 	server, err := modbus.NewServer(&modbus.ServerConfiguration{
-		URL:        "tcp://localhost:5502",
-		Timeout:    30 * time.Second,
-		MaxClients: 5,
+		URL:        url,
+		Timeout:    time.Duration(config.Modbus.TimeoutSeconds) * time.Second,
+		MaxClients: uint(config.Modbus.MaxClients),
 	}, handler)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create modbus server. Err: %w", err)

@@ -9,8 +9,15 @@ import (
 	"sensor-simulator/internal/pkg/endpoint/opcua"
 	"sensor-simulator/internal/pkg/service"
 
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 )
+
+func init() {
+	if err := godotenv.Load("./../.env"); err != nil {
+		fmt.Printf("No .env file found %s\n", err)
+	}
+}
 
 func App() {
 	modbusServer, err := modbus.NewServer()
