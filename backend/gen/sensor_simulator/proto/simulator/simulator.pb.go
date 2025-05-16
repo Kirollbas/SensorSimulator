@@ -1245,6 +1245,7 @@ type Simulator struct {
 	Address       uint32                 `protobuf:"varint,2,opt,name=address,proto3" json:"address,omitempty"`
 	Base          *Base                  `protobuf:"bytes,3,opt,name=base,proto3" json:"base,omitempty"`
 	Modifiers     []*Modifier            `protobuf:"bytes,4,rep,name=modifiers,proto3" json:"modifiers,omitempty"`
+	Duration      *durationpb.Duration   `protobuf:"bytes,5,opt,name=duration,proto3" json:"duration,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1303,6 +1304,13 @@ func (x *Simulator) GetBase() *Base {
 func (x *Simulator) GetModifiers() []*Modifier {
 	if x != nil {
 		return x.Modifiers
+	}
+	return nil
+}
+
+func (x *Simulator) GetDuration() *durationpb.Duration {
+	if x != nil {
+		return x.Duration
 	}
 	return nil
 }
@@ -1692,12 +1700,13 @@ const file_simulator_proto_rawDesc = "" +
 	"\x12DependenceModifier\x12%\n" +
 	"\x0esimulator_name\x18\x01 \x01(\tR\rsimulatorName\x12\x16\n" +
 	"\x06center\x18\x02 \x01(\x01R\x06center\x12 \n" +
-	"\vcoefficient\x18\x03 \x01(\x01R\vcoefficient\"\x91\x01\n" +
+	"\vcoefficient\x18\x03 \x01(\x01R\vcoefficient\"\xc8\x01\n" +
 	"\tSimulator\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
 	"\aaddress\x18\x02 \x01(\rR\aaddress\x12#\n" +
 	"\x04base\x18\x03 \x01(\v2\x0f.simulator.BaseR\x04base\x121\n" +
-	"\tmodifiers\x18\x04 \x03(\v2\x13.simulator.ModifierR\tmodifiers\"F\n" +
+	"\tmodifiers\x18\x04 \x03(\v2\x13.simulator.ModifierR\tmodifiers\x125\n" +
+	"\bduration\x18\x05 \x01(\v2\x19.google.protobuf.DurationR\bduration\"F\n" +
 	"\x10AddSensorRequest\x122\n" +
 	"\tsimulator\x18\x01 \x01(\v2\x14.simulator.SimulatorR\tsimulator\"\x13\n" +
 	"\x11AddSensorResponse\")\n" +
@@ -1813,20 +1822,21 @@ var file_simulator_proto_depIdxs = []int32{
 	3,  // 28: simulator.WhiteNoiseModifier.generator:type_name -> simulator.Prng
 	4,  // 29: simulator.Simulator.base:type_name -> simulator.Base
 	7,  // 30: simulator.Simulator.modifiers:type_name -> simulator.Modifier
-	18, // 31: simulator.AddSensorRequest.simulator:type_name -> simulator.Simulator
-	19, // 32: simulator.SensorSimulatorService.AddSensor:input_type -> simulator.AddSensorRequest
-	21, // 33: simulator.SensorSimulatorService.DeleteSensor:input_type -> simulator.DeleteSensorRequest
-	23, // 34: simulator.SensorSimulatorService.Start:input_type -> simulator.StartRequest
-	25, // 35: simulator.SensorSimulatorService.Stop:input_type -> simulator.StopRequest
-	20, // 36: simulator.SensorSimulatorService.AddSensor:output_type -> simulator.AddSensorResponse
-	22, // 37: simulator.SensorSimulatorService.DeleteSensor:output_type -> simulator.DeleteSensorResponse
-	24, // 38: simulator.SensorSimulatorService.Start:output_type -> simulator.StartResponse
-	26, // 39: simulator.SensorSimulatorService.Stop:output_type -> simulator.StopResponse
-	36, // [36:40] is the sub-list for method output_type
-	32, // [32:36] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	27, // 31: simulator.Simulator.duration:type_name -> google.protobuf.Duration
+	18, // 32: simulator.AddSensorRequest.simulator:type_name -> simulator.Simulator
+	19, // 33: simulator.SensorSimulatorService.AddSensor:input_type -> simulator.AddSensorRequest
+	21, // 34: simulator.SensorSimulatorService.DeleteSensor:input_type -> simulator.DeleteSensorRequest
+	23, // 35: simulator.SensorSimulatorService.Start:input_type -> simulator.StartRequest
+	25, // 36: simulator.SensorSimulatorService.Stop:input_type -> simulator.StopRequest
+	20, // 37: simulator.SensorSimulatorService.AddSensor:output_type -> simulator.AddSensorResponse
+	22, // 38: simulator.SensorSimulatorService.DeleteSensor:output_type -> simulator.DeleteSensorResponse
+	24, // 39: simulator.SensorSimulatorService.Start:output_type -> simulator.StartResponse
+	26, // 40: simulator.SensorSimulatorService.Stop:output_type -> simulator.StopResponse
+	37, // [37:41] is the sub-list for method output_type
+	33, // [33:37] is the sub-list for method input_type
+	33, // [33:33] is the sub-list for extension type_name
+	33, // [33:33] is the sub-list for extension extendee
+	0,  // [0:33] is the sub-list for field type_name
 }
 
 func init() { file_simulator_proto_init() }

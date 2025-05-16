@@ -1,22 +1,21 @@
 package service
 
 import (
-	"context"
 	"fmt"
-	pb "sensor-simulator/gen/sensor_simulator/proto/simulator"
+	"sensor-simulator/internal/pkg/dto"
 )
 
-func (s *SimulatorService) AddSensor(ctx context.Context, req *pb.AddSensorRequest) (*pb.AddSensorResponse, error) {
+func (s *SimulatorService) AddSensor(dto dto.Simulator) error {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 
-	simulator, newDependencies, err := s.simulatorFromPb(req.GetSimulator())
+	simulator, newDependencies, err := s.simulatorFromDTO(dto)
 	if err != nil {
-		return nil, fmt.Errorf("unable to create simulator. Err: %w", err)
+		return fmt.Errorf("unable to create simulator. Err: %w", err)
 	}
 
 	if _, ok := s.simulators[SimulatorName(simulator.GetName())]; ok {
-		return nil, fmt.Errorf("simulator with that name already exists.")
+		return fmt.Errorf("simulator with that name already exists.")
 	}
 
 	s.simulators[SimulatorName(simulator.GetName())] = simulator
@@ -29,5 +28,5 @@ func (s *SimulatorService) AddSensor(ctx context.Context, req *pb.AddSensorReque
 		simulatorDependencies[SimulatorName(dependency)] = struct{}{}
 	}
 
-	return &pb.AddSensorResponse{}, nil
+	return nil
 }

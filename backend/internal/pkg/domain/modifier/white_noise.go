@@ -3,11 +3,13 @@ package modifier
 import (
 	"fmt"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
 )
 
 type Generator interface {
 	NextZeroToOne() float64
 	Restart()
+	ToDTO() dto.Prng
 }
 
 type WhiteNoise struct {
@@ -36,4 +38,14 @@ func (wn *WhiteNoise) Restart() {
 func (wn *WhiteNoise) ApplyModifier(point state.PointState) state.PointState {
 	point.Value += wn.maxOffset*2*wn.prng.NextZeroToOne() - 1
 	return point
+}
+
+func (wn *WhiteNoise) ToDTO() dto.Modifier {
+	return dto.Modifier{
+		Type: dto.ModifierTypeWhiteNoise,
+		Data: dto.WhiteNoiseModifier{
+			Generator: wn.prng.ToDTO(),
+			MaxValue:  wn.maxOffset,
+		},
+	}
 }

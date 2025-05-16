@@ -1,7 +1,7 @@
 package opcua
 
 import (
-	"sensor-simulator/internal/config"
+	"sensor-simulator/internal/configs"
 
 	"github.com/gopcua/opcua/id"
 	"github.com/gopcua/opcua/server"
@@ -9,9 +9,9 @@ import (
 )
 
 func (s *Server) resetServer() {
-	host := config.GetConfig().Opcua.Host
-	port := config.GetConfig().Opcua.Port
-	namespaceName := config.GetConfig().Opcua.SimulatorNamespaceName
+	host := configs.GetConfig().Opcua.Host
+	port := configs.GetConfig().Opcua.Port
+	namespaceName := configs.GetConfig().Opcua.SimulatorNamespaceName
 
 	var opts []server.Option
 	opts = append(opts,

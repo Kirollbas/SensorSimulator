@@ -3,11 +3,16 @@ package modifier
 import (
 	"fmt"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
+	"time"
 )
 
 type RandomFixedDash struct {
-	prng       Generator
-	fixedValue float64
+	prng            Generator
+	fixedValue      float64
+	maxDashDuration time.Duration
+	minDashDuration time.Duration
+	avgPeriod       time.Duration
 
 	maxDashTicks   uint64
 	minDashTicks   uint64
@@ -19,10 +24,15 @@ type RandomFixedDash struct {
 func NewRandomFixedDashModifier(
 	prng Generator,
 	fixedValue float64,
-	maxDashTicks uint64,
-	minDashTicks uint64,
-	avgTicksPeriod uint64,
+	maxDashDuration time.Duration,
+	minDashDuration time.Duration,
+	avgPeriod time.Duration,
+	tickPeriod time.Duration,
 ) (*RandomFixedDash, error) {
+	minDashTicks := uint64(minDashDuration / tickPeriod)
+	maxDashTicks := uint64(maxDashDuration / tickPeriod)
+	avgDashTicks := uint64(avgPeriod / tickPeriod)
+
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
 	}
@@ -31,17 +41,20 @@ func NewRandomFixedDashModifier(
 		return nil, fmt.Errorf("max dash ticks must be greater or equal then min dash ticks")
 	}
 
-	if maxDashTicks >= avgTicksPeriod {
+	if maxDashTicks >= avgDashTicks {
 		return nil, fmt.Errorf("max dash ticks must be lower then dash period in average ticks")
 	}
 
 	return &RandomFixedDash{
-		prng:           prng,
-		fixedValue:     fixedValue,
-		maxDashTicks:   maxDashTicks,
-		minDashTicks:   minDashTicks,
-		avgTicksPeriod: avgTicksPeriod,
-		dashTicksLeft:  0,
+		prng:            prng,
+		fixedValue:      fixedValue,
+		maxDashDuration: maxDashDuration,
+		minDashDuration: minDashDuration,
+		avgPeriod:       avgPeriod,
+		maxDashTicks:    maxDashTicks,
+		minDashTicks:    minDashTicks,
+		avgTicksPeriod:  avgDashTicks,
+		dashTicksLeft:   0,
 	}, nil
 }
 
@@ -61,4 +74,23 @@ func (r *RandomFixedDash) ApplyModifier(point state.PointState) state.PointState
 	}
 
 	return point
+}
+
+func (r *RandomFixedDash) ToDTO() dto.Modifier {
+	return dto.Modifier{
+		Type: dto.ModifierTypeRandomFixedDash,
+		Data: dto.RandomFixedDashModifier{
+			Generator: r.prng.ToDTO(),
+			MinDashDuration: dto.Duration{
+				Duration: r.minDashDuration,
+			},
+			MaxDashDuration: dto.Duration{
+				Duration: r.maxDashDuration,
+			},
+			AvgPeriod: dto.Duration{
+				Duration: r.avgPeriod,
+			},
+			Value: r.fixedValue,
+		},
+	}
 }

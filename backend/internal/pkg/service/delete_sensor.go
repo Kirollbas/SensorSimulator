@@ -1,35 +1,33 @@
 package service
 
 import (
-	"context"
 	"fmt"
-	pb "sensor-simulator/gen/sensor_simulator/proto/simulator"
 )
 
-func (s *SimulatorService) DeleteSensor(ctx context.Context, req *pb.DeleteSensorRequest) (*pb.DeleteSensorResponse, error) {
+func (s *SimulatorService) DeleteSensor(name string) error {
 	s.mx.Lock()
 	defer s.mx.Unlock()
 
-	if _, ok := s.simulators[SimulatorName(req.GetName())]; !ok {
-		return nil, fmt.Errorf("simulator with that name not exist.")
+	if _, ok := s.simulators[SimulatorName(name)]; !ok {
+		return fmt.Errorf("simulator with that name not exist.")
 	}
 
-	simulatorDependencies, ok := s.dependencies[SimulatorName(req.GetName())]
+	simulatorDependencies, ok := s.dependencies[SimulatorName(name)]
 	if ok {
 		if len(simulatorDependencies) != 0 {
-			return nil, fmt.Errorf("simulators %v dependant from this simulator.", simulatorDependencies)
+			return fmt.Errorf("simulators %v dependant from this simulator.", simulatorDependencies)
 		}
 	}
 
-	delete(s.dependencies, SimulatorName(req.GetName()))
+	delete(s.dependencies, SimulatorName(name))
 
 	for _, v := range s.dependencies {
-		if _, ok := v[SimulatorName(req.GetName())]; ok {
-			delete(v, SimulatorName(req.GetName()))
+		if _, ok := v[SimulatorName(name)]; ok {
+			delete(v, SimulatorName(name))
 		}
 	}
 
-	delete(s.simulators, SimulatorName(req.GetName()))
+	delete(s.simulators, SimulatorName(name))
 
-	return &pb.DeleteSensorResponse{}, nil
+	return nil
 }

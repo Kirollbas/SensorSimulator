@@ -3,14 +3,15 @@ package app
 import (
 	"fmt"
 	"log"
-	"net"
-	pb "sensor-simulator/gen/sensor_simulator/proto/simulator"
+	"net/http"
+	"sensor-simulator/internal/configs"
+	"sensor-simulator/internal/pkg/controller"
 	"sensor-simulator/internal/pkg/endpoint/modbus"
 	"sensor-simulator/internal/pkg/endpoint/opcua"
 	"sensor-simulator/internal/pkg/service"
 
+	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
 )
 
 func init() {
@@ -30,20 +31,25 @@ func App() {
 		log.Fatalf("unable to create OPC UA server: %v", err)
 	}
 
-	lis, err := net.Listen("tcp", ":50051")
-	if err != nil {
-		log.Fatalf("Ошибка запуска: %v", err)
-	}
-
-	grpcServer := grpc.NewServer()
 	simulatorServer := service.NewSimulatorService(
 		modbusServer,
 		opcuaServer,
 	)
-	pb.RegisterSensorSimulatorServiceServer(grpcServer, simulatorServer)
 
-	fmt.Println("gRPC сервер запущен на порту 50051...")
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Ошибка запуска сервера: %v", err)
+	simulatorController := controller.NewSimulatorController(
+		simulatorServer,
+	)
+
+	router := mux.NewRouter()
+	simulatorRouter := router.PathPrefix("/api").Subrouter()
+	simulatorController.SetupRouter(simulatorRouter)
+
+	config := configs.GetConfig()
+	addressString := fmt.Sprintf(":%d", config.Simulator.Port)
+
+	err = http.ListenAndServe(addressString, router)
+	if err != nil {
+		log.Fatal(fmt.Errorf("unable to start server: %w", err))
+		return
 	}
 }

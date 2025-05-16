@@ -1,0 +1,220 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Simulator",
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "address": {"type": "integer", "minimum": 0, "maximum": 65536},
+        "base": {
+            "$ref": "#/definitions/Base"
+        },
+        "modifiers": {
+            "type": "array",
+            "items": {"$ref": "#/definitions/Modifier"}
+        },
+        "duration": {
+            "type": "string",
+            "format": "duration"
+        }
+    },
+    "required": ["name", "address", "base"],
+    "definitions": {
+        "Prng": {
+            "type": "object",
+            "properties": {
+                "type": {"type": "string", "enum": ["PRNG_TYPE_PCG", "PRNG_TYPE_XOSHIRO"]},
+                "seed": {"type": "integer"}
+            },
+            "required": ["type", "seed"]
+        },
+        "ConstantBase": {
+            "type": "object",
+            "properties": {
+                "value": {"type": "number"}
+            },
+            "required": ["value"]
+        },
+        "CommonBase": {
+            "type": "object",
+            "properties": {
+                "generator": {"$ref": "#/definitions/Prng"},
+                "min_value": {"type": "number"},
+                "max_value": {"type": "number"},
+                "min_period": {
+                    "type": "string",
+                    "format": "duration"
+                },
+                "max_period": {
+                    "type": "string",
+                    "format": "duration"
+                }
+            },
+            "required": ["generator", "min_value", "max_value", "min_period", "max_period"]
+        },
+        "Base": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string", 
+                    "enum": [   
+                        "BASE_TYPE_BEZIER",
+                        "BASE_TYPE_CONSTANT",
+                        "BASE_TYPE_LINEAR",
+                        "BASE_TYPE_SINEWAVE"
+                    ]
+                },
+                "data": {
+                    "oneOf": [
+                        {"$ref": "#/definitions/ConstantBase"},
+                        {"$ref": "#/definitions/CommonBase"}
+                    ]
+                }
+            },
+            "required": ["type", "data"]
+        },
+        "ConstantOffsetModifier": {
+            "type": "object",
+            "properties": {
+                "offset": {"type": "number"}
+            },
+            "required": ["offset"]
+        },
+        "HysteresisModifier": {
+            "type": "object",
+            "properties": {
+                "percentage": {"type": "integer", "minimum": 0}
+            },
+            "required": ["percentage"]
+        },
+        "InertitaModifier": {
+            "type": "object",
+            "properties": {
+                "value": {"type": "number"},
+                "period": {
+                    "type": "string",
+                    "format": "duration"
+                }
+            },
+            "required": ["value", "period"]
+        },
+        "NonLinearDependenceModifier": {
+            "type": "object",
+            "properties": {
+                "coefficient": {"type": "number"},
+                "center": {"type": "number"}
+            },
+            "required": ["coefficient", "center"]
+        },
+        "ProgressingOffsetModifier": {
+            "type": "object",
+            "properties": {
+                "value": {"type": "number"},
+                "interval": {
+                    "type": "string",
+                    "format": "duration"
+                }
+            },
+            "required": ["value", "interval"]
+        },
+        "QuantizationModifier": {
+            "type": "object",
+            "properties": {
+                "quant": {"type": "number"}
+            },
+            "required": ["quant"]
+        },
+        "RandomAddDashModifier": {
+            "type": "object",
+            "properties": {
+                "generator": {"$ref": "#/definitions/Prng"},
+                "min_add_value": {"type": "number"},
+                "max_add_value": {"type": "number"},
+                "min_dash_duration": {
+                    "type": "string",
+                    "format": "duration"
+                },
+                "max_dash_duration": {
+                    "type": "string",
+                    "format": "duration"
+                },
+                "avg_period": {
+                    "type": "string",
+                    "format": "duration"
+                }
+            },
+            "required": ["generator", "min_add_value", "max_add_value", "min_dash_duration", "max_dash_duration", "avg_period"]
+        },
+        "RandomFixedDashModifier": {
+            "type": "object",
+            "properties": {
+                "generator": {"$ref": "#/definitions/Prng"},
+                "value": {"type": "number"},
+                "min_dash_duration": {
+                    "type": "string",
+                    "format": "duration"
+                },
+                "max_dash_duration": {
+                    "type": "string",
+                    "format": "duration"
+                },
+                "avg_period": {
+                    "type": "string",
+                    "format": "duration"
+                }
+            },
+            "required": ["generator", "value", "min_dash_duration", "max_dash_duration", "avg_period"]
+        },
+        "WhiteNoiseModifier": {
+            "type": "object",
+            "properties": {
+                "generator": {"$ref": "#/definitions/Prng"},
+                "max_value": {"type": "number"}
+            },
+            "required": ["generator", "max_value"]
+        },
+        "DependenceModifier": {
+            "type": "object",
+            "properties": {
+                "simulator_name": {"type": "string"},
+                "center": {"type": "number"},
+                "coefficient": {"type": "number"}
+            },
+            "required": ["simulator_name", "center", "coefficient"]
+        },
+        "Modifier": {
+            "type": "object",
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "enum": [
+                        "MODIFIER_TYPE_CONSTANT_OFFSET",
+                        "MODIFIER_TYPE_HYSTERESIS",
+                        "MODIFIER_TYPE_INERTIA",
+                        "MODIFIER_TYPE_NONLINEAR_DEPENDENCE",
+                        "MODIFIER_TYPE_PROGRESSING_OFFSET",
+                        "MODIFIER_TYPE_QUANTIZATION",
+                        "MODIFIER_TYPE_RANDOM_ADD_DASH",
+                        "MODIFIER_TYPE_RANDOM_FIXED_DASH",
+                        "MODIFIER_TYPE_WHITE_NOISE",
+                        "MODIFIER_TYPE_DEPENDENCE"
+                    ]
+                },
+                "data": {
+                    "oneOf": [
+                        {"$ref": "#/definitions/ConstantOffsetModifier"},
+                        {"$ref": "#/definitions/HysteresisModifier"},
+                        {"$ref": "#/definitions/InertitaModifier"},
+                        {"$ref": "#/definitions/NonLinearDependenceModifier"},
+                        {"$ref": "#/definitions/ProgressingOffsetModifier"},
+                        {"$ref": "#/definitions/QuantizationModifier"},
+                        {"$ref": "#/definitions/RandomAddDashModifier"},
+                        {"$ref": "#/definitions/RandomFixedDashModifier"},
+                        {"$ref": "#/definitions/WhiteNoiseModifier"},
+                        {"$ref": "#/definitions/DependenceModifier"}
+                    ]
+                }
+            },
+            "required": ["type", "data"]
+        }
+    }
+}

@@ -2,6 +2,7 @@ package generator
 
 import (
 	"math"
+	"sensor-simulator/internal/pkg/dto"
 
 	"github.com/db47h/rand64/v3/xoshiro"
 )
@@ -35,4 +36,11 @@ func (x *Xoshiro) NextZeroToOne() float64 {
 
 func (x *Xoshiro) Restart() {
 	x.gen.Seed(x.seed)
+}
+
+func (x *Xoshiro) ToDTO() dto.Prng {
+	return dto.Prng{
+		Type: dto.PRNGTypeXoshiro,
+		Seed: x.seed,
+	}
 }

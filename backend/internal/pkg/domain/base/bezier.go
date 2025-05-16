@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"math"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
+	"time"
 )
 
 type Generator interface {
 	NextZeroToOne() float64
 	Restart()
+	ToDTO() dto.Prng
 }
 
 type StateSubscriber interface {
@@ -19,8 +22,11 @@ type BezierSimulator struct {
 	prng             Generator
 	stateSubscribers []StateSubscriber
 
-	minValue            float64
-	maxValue            float64
+	minValue  float64
+	maxValue  float64
+	minPeriod time.Duration
+	maxPeriod time.Duration
+
 	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
@@ -36,9 +42,13 @@ func NewBezierSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
-	minTicksUntilChange uint64,
-	maxTicksUntilChange uint64,
+	minPeriod time.Duration,
+	maxPeriod time.Duration,
+	tickPeriod time.Duration,
 ) (*BezierSimulator, error) {
+	minTicksUntilChange := uint64(minPeriod / tickPeriod)
+	maxTicksUntilChange := uint64(maxPeriod / tickPeriod)
+
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
 	}
@@ -62,6 +72,8 @@ func NewBezierSimulator(
 		stateSubscribers:    make([]StateSubscriber, 0),
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minPeriod:           minPeriod,
+		maxPeriod:           maxPeriod,
 		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
@@ -119,5 +131,22 @@ func (b *BezierSimulator) Iterate() state.PointState {
 		BaseValue: newValue,
 		Value:     newValue,
 		Tick:      b.currentTick,
+	}
+}
+
+func (b *BezierSimulator) ToDTO() dto.Base {
+	return dto.Base{
+		Type: dto.BaseTypeBezier,
+		Data: dto.CommonBase{
+			Generator: b.prng.ToDTO(),
+			MinValue:  b.minValue,
+			MaxValue:  b.maxValue,
+			MinPeriod: dto.Duration{
+				Duration: b.minPeriod,
+			},
+			MaxPeriod: dto.Duration{
+				Duration: b.maxPeriod,
+			},
+		},
 	}
 }

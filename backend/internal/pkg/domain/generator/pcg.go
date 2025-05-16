@@ -2,6 +2,7 @@ package generator
 
 import (
 	"math"
+	"sensor-simulator/internal/pkg/dto"
 
 	"github.com/db47h/rand64/v3/pcg"
 )
@@ -35,4 +36,11 @@ func (x *Pcg) NextZeroToOne() float64 {
 
 func (x *Pcg) Restart() {
 	x.gen.Seed(x.seed)
+}
+
+func (x *Pcg) ToDTO() dto.Prng {
+	return dto.Prng{
+		Type: dto.PRNGTypePCG,
+		Seed: x.seed,
+	}
 }

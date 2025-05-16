@@ -3,6 +3,7 @@ package modifier
 import (
 	"math"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
 )
 
 type NonLinear struct {
@@ -28,4 +29,14 @@ func (nl *NonLinear) ApplyModifier(point state.PointState) state.PointState {
 	point.Value += nl.coefficient * math.Pow(diff, 2) * math.Copysign(1.0, diff)
 
 	return point
+}
+
+func (nl *NonLinear) ToDTO() dto.Modifier {
+	return dto.Modifier{
+		Type: dto.ModifierTypeNonLinearDependence,
+		Data: dto.NonLinearDependenceModifier{
+			Coefficient: nl.coefficient,
+			Center:      nl.center,
+		},
+	}
 }

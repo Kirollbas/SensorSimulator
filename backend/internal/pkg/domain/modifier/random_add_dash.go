@@ -3,12 +3,17 @@ package modifier
 import (
 	"fmt"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
+	"time"
 )
 
 type RandomAddDash struct {
-	prng        Generator
-	minAddValue float64
-	maxAddValue float64
+	prng            Generator
+	minAddValue     float64
+	maxAddValue     float64
+	maxDashDuration time.Duration
+	minDashDuration time.Duration
+	avgPeriod       time.Duration
 
 	maxDashTicks   uint64
 	minDashTicks   uint64
@@ -20,12 +25,17 @@ type RandomAddDash struct {
 
 func NewRandomAddDashModifier(
 	prng Generator,
-	maxDashTicks uint64,
-	minDashTicks uint64,
-	avgTicksPeriod uint64,
+	maxDashDuration time.Duration,
+	minDashDuration time.Duration,
+	avgPeriod time.Duration,
 	minAddValue float64,
 	maxAddValue float64,
+	tickPeriod time.Duration,
 ) (*RandomAddDash, error) {
+	minDashTicks := uint64(minDashDuration / tickPeriod)
+	maxDashTicks := uint64(maxDashDuration / tickPeriod)
+	avgDashTicks := uint64(avgPeriod / tickPeriod)
+
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
 	}
@@ -38,17 +48,20 @@ func NewRandomAddDashModifier(
 		return nil, fmt.Errorf("max dash ticks must be greater or equal then min dash ticks")
 	}
 
-	if maxDashTicks >= avgTicksPeriod {
+	if maxDashTicks >= avgDashTicks {
 		return nil, fmt.Errorf("max dash ticks must be lower then dash period in average ticks")
 	}
 
 	return &RandomAddDash{
-		prng:           prng,
-		maxDashTicks:   maxDashTicks,
-		minDashTicks:   minDashTicks,
-		avgTicksPeriod: avgTicksPeriod,
-		minAddValue:    minAddValue,
-		maxAddValue:    maxAddValue,
+		prng:            prng,
+		maxDashTicks:    maxDashTicks,
+		minDashTicks:    minDashTicks,
+		maxDashDuration: maxDashDuration,
+		minDashDuration: minDashDuration,
+		avgPeriod:       avgPeriod,
+		avgTicksPeriod:  avgDashTicks,
+		minAddValue:     minAddValue,
+		maxAddValue:     maxAddValue,
 	}, nil
 }
 
@@ -70,4 +83,24 @@ func (r *RandomAddDash) ApplyModifier(point state.PointState) state.PointState {
 	}
 
 	return point
+}
+
+func (r *RandomAddDash) ToDTO() dto.Modifier {
+	return dto.Modifier{
+		Type: dto.ModifierTypeRandomAddDash,
+		Data: dto.RandomAddDashModifier{
+			Generator:   r.prng.ToDTO(),
+			MinAddValue: r.minAddValue,
+			MaxAddValue: r.maxAddValue,
+			MinDashDuration: dto.Duration{
+				Duration: r.minDashDuration,
+			},
+			MaxDashDuration: dto.Duration{
+				Duration: r.maxDashDuration,
+			},
+			AvgPeriod: dto.Duration{
+				Duration: r.avgPeriod,
+			},
+		},
+	}
 }

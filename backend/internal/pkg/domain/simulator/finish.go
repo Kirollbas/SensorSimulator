@@ -1,6 +1,16 @@
 package simulator
 
 func (s *Simulator) Finish() {
+	s.mx.Lock()
+	defer s.mx.Unlock()
+
+	if !s.isWorking {
+		return
+	}
+
 	s.endChan <- struct{}{}
 	s.wg.Wait()
+
+	s.stopTimerChan <- struct{}{}
+	s.isWorking = false
 }

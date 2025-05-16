@@ -135,6 +135,7 @@ message Simulator {
     uint32 address = 2;
     Base base = 3;
     repeated Modifier modifiers = 4;
+    google.protobuf.Duration duration = 5;
 }
 
 service SensorSimulatorService {

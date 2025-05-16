@@ -3,14 +3,19 @@ package base
 import (
 	"fmt"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
+	"time"
 )
 
 type LinearSimulator struct {
 	prng             Generator
 	stateSubscribers []StateSubscriber
 
-	minValue            float64
-	maxValue            float64
+	minValue  float64
+	maxValue  float64
+	minPeriod time.Duration
+	maxPeriod time.Duration
+
 	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
@@ -26,9 +31,13 @@ func NewLinearSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
-	minTicksUntilChange uint64,
-	maxTicksUntilChange uint64,
+	minPeriod time.Duration,
+	maxPeriod time.Duration,
+	tickPeriod time.Duration,
 ) (*LinearSimulator, error) {
+	minTicksUntilChange := uint64(minPeriod / tickPeriod)
+	maxTicksUntilChange := uint64(maxPeriod / tickPeriod)
+
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
 	}
@@ -52,6 +61,8 @@ func NewLinearSimulator(
 		stateSubscribers:    make([]StateSubscriber, 0),
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minPeriod:           minPeriod,
+		maxPeriod:           maxPeriod,
 		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
@@ -103,5 +114,22 @@ func (l *LinearSimulator) Iterate() state.PointState {
 		BaseValue: l.currentValue,
 		Value:     l.currentValue,
 		Tick:      l.currentTick,
+	}
+}
+
+func (l *LinearSimulator) ToDTO() dto.Base {
+	return dto.Base{
+		Type: dto.BaseTypeLinear,
+		Data: dto.CommonBase{
+			Generator: l.prng.ToDTO(),
+			MinValue:  l.minValue,
+			MaxValue:  l.maxValue,
+			MinPeriod: dto.Duration{
+				Duration: l.minPeriod,
+			},
+			MaxPeriod: dto.Duration{
+				Duration: l.maxPeriod,
+			},
+		},
 	}
 }

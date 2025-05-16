@@ -14,6 +14,7 @@ require (
 	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gopcua/opcua v0.7.1 // indirect
+	github.com/gorilla/mux v1.8.1 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/simonvetter/modbus v1.6.3 // indirect

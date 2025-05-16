@@ -2,6 +2,7 @@ package base
 
 import (
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
 )
 
 type ConstantSimulator struct {
@@ -27,3 +28,12 @@ func (c *ConstantSimulator) Iterate() state.PointState {
 func (c *ConstantSimulator) AddStateSubscriber(subscriber StateSubscriber) {}
 
 func (c *ConstantSimulator) Restart() {}
+
+func (c *ConstantSimulator) ToDTO() dto.Base {
+	return dto.Base{
+		Type: dto.BaseTypeConstant,
+		Data: dto.ConstantBase{
+			Value: c.value,
+		},
+	}
+}

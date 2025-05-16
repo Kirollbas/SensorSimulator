@@ -4,14 +4,19 @@ import (
 	"fmt"
 	"math"
 	"sensor-simulator/internal/pkg/domain/state"
+	"sensor-simulator/internal/pkg/dto"
+	"time"
 )
 
 type SineWaveSimulator struct {
 	prng             Generator
 	stateSubscribers []StateSubscriber
 
-	minValue            float64
-	maxValue            float64
+	minValue  float64
+	maxValue  float64
+	minPeriod time.Duration
+	maxPeriod time.Duration
+
 	minTicksUntilChange uint64
 	maxTicksUntilChange uint64
 
@@ -28,9 +33,13 @@ func NewSineWaveSimulator(
 	prng Generator,
 	minValue float64,
 	maxValue float64,
-	minTicksUntilChange uint64,
-	maxTicksUntilChange uint64,
+	minPeriod time.Duration,
+	maxPeriod time.Duration,
+	tickPeriod time.Duration,
 ) (*SineWaveSimulator, error) {
+	minTicksUntilChange := uint64(minPeriod / tickPeriod)
+	maxTicksUntilChange := uint64(maxPeriod / tickPeriod)
+
 	if prng == nil {
 		return nil, fmt.Errorf("generator cannot be nil")
 	}
@@ -53,6 +62,8 @@ func NewSineWaveSimulator(
 		prng:                prng,
 		minValue:            minValue,
 		maxValue:            maxValue,
+		minPeriod:           minPeriod,
+		maxPeriod:           maxPeriod,
 		minTicksUntilChange: minTicksUntilChange,
 		maxTicksUntilChange: maxTicksUntilChange,
 		currentValue:        centerValue,
@@ -107,5 +118,22 @@ func (s *SineWaveSimulator) Iterate() state.PointState {
 		BaseValue: newValue,
 		Value:     newValue,
 		Tick:      s.currentTick,
+	}
+}
+
+func (s *SineWaveSimulator) ToDTO() dto.Base {
+	return dto.Base{
+		Type: dto.BaseTypeSinewave,
+		Data: dto.CommonBase{
+			Generator: s.prng.ToDTO(),
+			MinValue:  s.minValue,
+			MaxValue:  s.maxValue,
+			MinPeriod: dto.Duration{
+				Duration: s.minPeriod,
+			},
+			MaxPeriod: dto.Duration{
+				Duration: s.maxPeriod,
+			},
+		},
 	}
 }

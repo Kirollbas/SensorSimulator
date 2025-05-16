@@ -1,4 +1,4 @@
-package config
+package configs
 
 import (
 	"os"
@@ -31,12 +31,12 @@ type Simulator struct {
 	Frequency int
 }
 
-var instance Config
-var once sync.Once
+var configInstance Config
+var configOnce sync.Once
 
 func GetConfig() Config {
-	once.Do(func() {
-		instance = Config{
+	configOnce.Do(func() {
+		configInstance = Config{
 			Opcua: Opcua{
 				Host:                   getEnv("OPCUA_HOST", "localhost"),
 				Port:                   getEnvAsInt("OPCUA_PORT", 48400),
@@ -55,7 +55,7 @@ func GetConfig() Config {
 		}
 	})
 
-	return instance
+	return configInstance
 }
 
 func getEnv(key string, defaultVal string) string {

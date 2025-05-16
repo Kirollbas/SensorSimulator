@@ -2,7 +2,7 @@ package modbus
 
 import (
 	"fmt"
-	"sensor-simulator/internal/config"
+	"sensor-simulator/internal/configs"
 	"sensor-simulator/internal/pkg/endpoint/modbus/handler"
 	"time"
 
@@ -17,7 +17,7 @@ type Server struct {
 func NewServer() (*Server, error) {
 	handler := handler.NewHandler()
 
-	config := config.GetConfig()
+	config := configs.GetConfig()
 	url := fmt.Sprintf("tcp://%s:%d", config.Modbus.Host, config.Modbus.Port)
 
 	server, err := modbus.NewServer(&modbus.ServerConfiguration{
