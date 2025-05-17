@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	pb "sensor-simulator/gen/sensor_simulator/proto/simulator"
 	"sensor-simulator/internal/pkg/domain/simulator"
 	"sync"
 )
@@ -15,7 +14,6 @@ type endpointServer interface {
 }
 
 type SimulatorService struct {
-	pb.UnimplementedSensorSimulatorServiceServer
 	modbusServer endpointServer
 	opcuaServer  endpointServer
 

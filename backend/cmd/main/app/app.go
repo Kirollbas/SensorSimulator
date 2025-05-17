@@ -8,6 +8,7 @@ import (
 	"sensor-simulator/internal/pkg/controller"
 	"sensor-simulator/internal/pkg/endpoint/modbus"
 	"sensor-simulator/internal/pkg/endpoint/opcua"
+	"sensor-simulator/internal/pkg/middleware"
 	"sensor-simulator/internal/pkg/service"
 
 	"github.com/gorilla/mux"
@@ -41,6 +42,9 @@ func App() {
 	)
 
 	router := mux.NewRouter()
+
+	router.Use(middleware.EnableCORS)
+
 	simulatorRouter := router.PathPrefix("/api").Subrouter()
 	simulatorController.SetupRouter(simulatorRouter)
 

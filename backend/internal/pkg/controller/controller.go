@@ -29,9 +29,9 @@ func NewSimulatorController(
 }
 
 func (c *SimulatorController) SetupRouter(router *mux.Router) {
-	router.HandleFunc("/simulator", c.getSimulators).Methods(http.MethodGet)
-	router.HandleFunc("/simulator/add", c.addSimulator).Methods(http.MethodPost)
-	router.HandleFunc("/simulator/{name}", c.deleteSimulator).Methods(http.MethodDelete)
-	router.HandleFunc("/start", c.start).Methods(http.MethodPost)
-	router.HandleFunc("/stop", c.stop).Methods(http.MethodPost)
+	router.HandleFunc("/simulator", c.getSimulators).Methods(http.MethodGet, http.MethodOptions)
+	router.HandleFunc("/simulator/add", c.addSimulator).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/simulator/{name}", c.deleteSimulator).Methods(http.MethodDelete, http.MethodOptions)
+	router.HandleFunc("/start", c.start).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/stop", c.stop).Methods(http.MethodPost, http.MethodOptions)
 }
