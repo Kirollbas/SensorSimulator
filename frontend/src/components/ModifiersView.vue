@@ -63,6 +63,9 @@ function parsePRNG(prng){
   white-space: normal;    /* разрешить перенос строк */
   overflow-wrap: break-word;
   display: block;
+  font-family: 'Arial';
+  font-weight: bold;
+  font-size: 14px;
 }
 .icon{
   width: 20%;

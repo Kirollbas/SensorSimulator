@@ -55,7 +55,10 @@ function parsePRNG(prng){
   padding: 5px;
 }
 .name{
-  width: 80%;
+  width: 80%;   
+  font-family: 'Arial';
+  font-weight: bold;
+  font-size: 14px;
 }
 .icon{
   width: 20%;

@@ -16,6 +16,7 @@ func (s *Server) resetServer() {
 	var opts []server.Option
 	opts = append(opts,
 		server.EndPoint(host, port),
+		server.EndPoint("localhost", port),
 		server.EnableSecurity("None", ua.MessageSecurityModeNone),
 		server.EnableAuthMode(ua.UserTokenTypeAnonymous),
 		server.SoftwareVersion("0.0.1"),

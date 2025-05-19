@@ -2,16 +2,18 @@
 import './../style.css';
 import { defineProps } from 'vue'
 import BaseView from './BaseView.vue'
+import { apiUrl } from './../constants/address.js';
 import ModifiersView from './ModifiersView.vue'
 
 const props = defineProps({
   simulator: Object,
   fetchFunc: Function,
+  isRunning: Boolean,
 })
 
 async function deleteSimulator(name) {
   try {
-    const response = await fetch(`http://localhost:8080/api/simulator/${name}`, {
+    const response = await fetch(`${apiUrl}/api/simulator/${name}`, {
         method: "DELETE",
     });
     
@@ -28,9 +30,12 @@ async function deleteSimulator(name) {
   <div class="simulator">
     <div class="header">
         <div class="name">{{ simulator.name }}</div>
-        <button @click="deleteSimulator(simulator.name)" class="delete-button">
+        <button @click="deleteSimulator(simulator.name)" class="delete-button" v-if="!isRunning">
             <i class="fas fa-trash delete-icon"></i> 
         </button>
+        <div class="delete-button" v-if="isRunning">
+            <i :class="simulator.is_active ? 'fas fa-circle active-icon' : 'fas fa-circle delete-icon'"></i> 
+        </div>
     </div>
     <div class="info">
         <div class="info-name">Название:</div>
@@ -63,6 +68,9 @@ async function deleteSimulator(name) {
 .name{
     display: flex; 
     width: 90%;
+    font-size: 20px;     
+    font-family: 'Arial';
+    font-weight: bold;
 }
 .delete-button{
     width: 10%;
@@ -78,6 +86,9 @@ async function deleteSimulator(name) {
 }
 .delete-icon{
     color: var(--color-red);   
+}
+.active-icon{
+    color: var(--color-green);   
 }
 .info{
     display: flex;

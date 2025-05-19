@@ -6,6 +6,7 @@ import { defineProps } from 'vue'
 const props = defineProps({
   simulators: Array,
   fetchFunc: Function,
+  isRunning: Boolean,
 })
 
 </script>
@@ -18,7 +19,7 @@ const props = defineProps({
     <div class="simulators-container">
       <div class="simulators-list-container">
         <div class="simulators-list">
-          <Simulator v-for="(item, index) in simulators" :simulator="item" :fetchFunc="fetchFunc"/>
+          <Simulator v-for="(item, index) in simulators" :simulator="item" :fetchFunc="fetchFunc" :isRunning="isRunning"/>
         </div>
       </div>
     </div>
@@ -57,12 +58,6 @@ const props = defineProps({
   padding: 20px;
   overflow-y: auto;
   box-sizing: border-box;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE/Edge */
-}
-
-.simulators-list-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, Opera */
 }
 
 .simulators-list{
