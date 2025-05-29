@@ -2,6 +2,7 @@ package simulator
 
 import (
 	"fmt"
+	"os"
 	"sensor-simulator/internal/pkg/domain/base"
 	domain "sensor-simulator/internal/pkg/domain/state"
 	"sensor-simulator/internal/pkg/dto"
@@ -45,6 +46,8 @@ type Simulator struct {
 	currentValueBits     uint64
 
 	endPointUpdaters []EndpointUpdater
+
+	logFile *os.File
 }
 
 func NewSimulator(

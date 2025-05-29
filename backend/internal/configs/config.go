@@ -27,8 +27,9 @@ type Modbus struct {
 }
 
 type Simulator struct {
-	Port      int
-	Frequency int
+	Port        int
+	Frequency   int
+	LogsEnabled bool
 }
 
 var configInstance Config
@@ -49,8 +50,9 @@ func GetConfig() Config {
 				MaxClients:     getEnvAsInt("MODBUS_MAX_CLIENTS", 5),
 			},
 			Simulator: Simulator{
-				Port:      getEnvAsInt("SIMULATOR_HTTP_PORT", 8080),
-				Frequency: getEnvAsInt("SIMULATOR_FREQUENCY", 100),
+				Port:        getEnvAsInt("SIMULATOR_HTTP_PORT", 8080),
+				Frequency:   getEnvAsInt("SIMULATOR_FREQUENCY", 100),
+				LogsEnabled: getEnvAsBool("SIMULATOR_LOGS_ENABLED", false),
 			},
 		}
 	})

@@ -4,12 +4,14 @@ services:
   backend:
     build:
       context: ./backend
+    volumes:
+      - ./logs:/root/logs
     ports:
       - "8080:8080"
       - "48400:48400"
       - "5502:5502"
     env_file:
-      - .env
+      - ./backend/.env
     restart: unless-stopped
 
   frontend:
@@ -18,5 +20,5 @@ services:
     ports:
       - "3000:80"
     env_file:
-      - .env
+      - ./frontend/.env
     restart: unless-stopped

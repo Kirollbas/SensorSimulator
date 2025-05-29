@@ -16,7 +16,7 @@ import (
 )
 
 func init() {
-	if err := godotenv.Load("./../.env"); err != nil {
+	if err := godotenv.Load("./.env"); err != nil {
 		fmt.Printf("No .env file found %s\n", err)
 	}
 }
@@ -49,7 +49,7 @@ func App() {
 	simulatorController.SetupRouter(simulatorRouter)
 
 	config := configs.GetConfig()
-	addressString := fmt.Sprintf(":%d", config.Simulator.Port)
+	addressString := fmt.Sprintf("0.0.0.0:%d", config.Simulator.Port)
 
 	err = http.ListenAndServe(addressString, router)
 	if err != nil {

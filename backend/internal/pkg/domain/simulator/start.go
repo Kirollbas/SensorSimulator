@@ -1,6 +1,12 @@
 package simulator
 
-import "time"
+import (
+	"fmt"
+	"os"
+	"path/filepath"
+	"sensor-simulator/internal/configs"
+	"time"
+)
 
 func (s *Simulator) Start() {
 	s.mx.Lock()
@@ -8,6 +14,25 @@ func (s *Simulator) Start() {
 
 	if s.isWorking {
 		return
+	}
+
+	if configs.GetConfig().Simulator.LogsEnabled {
+		logDir := "/root/logs"
+		err := os.MkdirAll(logDir, 0755)
+		if err != nil {
+			logDir = ""
+		}
+
+		filename := fmt.Sprintf("%s_%s.log", s.name, time.Now().Format("2006-01-02 15:04:05"))
+
+		logPath := filepath.Join(logDir, filename)
+
+		logFile, err := os.Create(logPath)
+		if err != nil {
+			s.logFile = os.NewFile(0, os.DevNull)
+		}
+
+		s.logFile = logFile
 	}
 
 	s.wg.Add(1)

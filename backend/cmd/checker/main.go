@@ -6,379 +6,109 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sensor-simulator/internal/pkg/dto"
+	"sensor-simulator/internal/pkg/endpoint/modbus"
+	"sensor-simulator/internal/pkg/endpoint/opcua"
+	"sensor-simulator/internal/pkg/service"
+	"time"
 
 	"github.com/joho/godotenv"
 )
 
 func init() {
-	if err := godotenv.Load("./../.env"); err != nil {
+	if err := godotenv.Load("./.env"); err != nil {
 		fmt.Printf("No .env file found %s\n", err)
 	}
 }
 
 func main() {
-	// modbusServer, err := modbus.NewServer()
-	// if err != nil {
-	// 	log.Fatalf("unable to create modbus server: %v", err)
-	// }
+	modbusServer, err := modbus.NewServer()
+	if err != nil {
+		log.Fatalf("unable to create modbus server: %v", err)
+	}
 
-	// opcuaServer, err := opcua.NewServer()
-	// if err != nil {
-	// 	log.Fatalf("unable to create OPC UA server: %v", err)
-	// }
+	opcuaServer, err := opcua.NewServer()
+	if err != nil {
+		log.Fatalf("unable to create OPC UA server: %v", err)
+	}
 
-	// simulatorService := service.NewSimulatorService(
-	// 	modbusServer,
-	// 	opcuaServer,
-	// )
+	simulatorService := service.NewSimulatorService(
+		modbusServer,
+		opcuaServer,
+	)
 
-	// _, err = simulatorService.AddSensor(
-	// 	context.Background(),
-	// 	&simulator.AddSensorRequest{
-	// 		Simulator: &simulator.Simulator{
-	// 			Name:    "tempreature",
-	// 			Address: 11,
-	// 			Base: &simulator.Base{
-	// 				Type: simulator.BaseType_BASE_TYPE_BEZIER,
-	// 				TypeData: &simulator.Base_Common{
-	// 					Common: &simulator.CommonBase{
-	// 						Generator: &simulator.Prng{
-	// 							Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 							Seed: 2,
-	// 						},
-	// 						MinValue:  10.0,
-	// 						MaxValue:  90.0,
-	// 						MinPeriod: durationpb.New(time.Second),
-	// 						MaxPeriod: durationpb.New(10 * time.Second),
-	// 					},
-	// 				},
-	// 			},
-	// 			Modifiers: []*simulator.Modifier{},
-	// 		},
-	// 	},
-	// )
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// _, err = simulatorService.AddSensor(
-	// 	context.Background(),
-	// 	&simulator.AddSensorRequest{
-	// 		Simulator: &simulator.Simulator{
-	// 			Name:    fmt.Sprintf("test_1"),
-	// 			Address: uint32(1),
-	// 			Base: &simulator.Base{
-	// 				Type: simulator.BaseType_BASE_TYPE_BEZIER,
-	// 				TypeData: &simulator.Base_Common{
-	// 					Common: &simulator.CommonBase{
-	// 						Generator: &simulator.Prng{
-	// 							Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 							Seed: 0,
-	// 						},
-	// 						MinValue:  10.0,
-	// 						MaxValue:  90.0,
-	// 						MinPeriod: durationpb.New(time.Second),
-	// 						MaxPeriod: durationpb.New(10 * time.Second),
-	// 					},
-	// 				},
-	// 			},
-	// 			Modifiers: []*simulator.Modifier{
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_WHITE_NOISE,
-	// 					TypeData: &simulator.Modifier_WhiteNoise{
-	// 						WhiteNoise: &simulator.WhiteNoiseModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							MaxValue: 1.0,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_HYSTERESIS,
-	// 					TypeData: &simulator.Modifier_Hysteresis{
-	// 						Hysteresis: &simulator.HysteresisModifier{
-	// 							Percentage: 3,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_CONSTANT_OFFSET,
-	// 					TypeData: &simulator.Modifier_ConstOffset{
-	// 						ConstOffset: &simulator.ConstantOffsetModifier{
-	// 							Offset: 2.0,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_INERTIA,
-	// 					TypeData: &simulator.Modifier_Inertia{
-	// 						Inertia: &simulator.InertitaModifier{
-	// 							Value:  10,
-	// 							Period: durationpb.New(time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_NONLINEAR_DEPENDENCE,
-	// 					TypeData: &simulator.Modifier_NonLinearDependance{
-	// 						NonLinearDependance: &simulator.NonLinearDependenceModifier{
-	// 							Coefficient: 0.01,
-	// 							Center:      50,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_PROGRESSING_OFFSET,
-	// 					TypeData: &simulator.Modifier_ProgressingOffset{
-	// 						ProgressingOffset: &simulator.ProgressingOffsetModifier{
-	// 							Value:    0.2,
-	// 							Interval: durationpb.New(time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_QUANTIZATION,
-	// 					TypeData: &simulator.Modifier_Quantization{
-	// 						Quantization: &simulator.QuantizationModifier{
-	// 							Quant: 0.05,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_RANDOM_ADD_DASH,
-	// 					TypeData: &simulator.Modifier_RandomAddDash{
-	// 						RandomAddDash: &simulator.RandomAddDashModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							MinAddValue:     5,
-	// 							MaxAddValue:     10,
-	// 							MinDashDuration: durationpb.New(time.Second),
-	// 							MaxDashDuration: durationpb.New(2 * time.Second),
-	// 							AvgPeriod:       durationpb.New(5 * time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_RANDOM_FIXED_DASH,
-	// 					TypeData: &simulator.Modifier_RandomFixedDash{
-	// 						RandomFixedDash: &simulator.RandomFixedDashModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							Value:           90,
-	// 							MinDashDuration: durationpb.New(500 * time.Millisecond),
-	// 							MaxDashDuration: durationpb.New(2 * time.Second),
-	// 							AvgPeriod:       durationpb.New(5 * time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 			},
-	// 			Duration: durationpb.New(10 * time.Second),
-	// 		},
-	// 	},
-	// )
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// _, err = simulatorService.AddSensor(
-	// 	context.Background(),
-	// 	&simulator.AddSensorRequest{
-	// 		Simulator: &simulator.Simulator{
-	// 			Name:    fmt.Sprintf("test_2"),
-	// 			Address: uint32(10),
-	// 			Base: &simulator.Base{
-	// 				Type: simulator.BaseType_BASE_TYPE_BEZIER,
-	// 				TypeData: &simulator.Base_Common{
-	// 					Common: &simulator.CommonBase{
-	// 						Generator: &simulator.Prng{
-	// 							Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 							Seed: 0,
-	// 						},
-	// 						MinValue:  10.0,
-	// 						MaxValue:  90.0,
-	// 						MinPeriod: durationpb.New(time.Second),
-	// 						MaxPeriod: durationpb.New(10 * time.Second),
-	// 					},
-	// 				},
-	// 			},
-	// 			Modifiers: []*simulator.Modifier{
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_WHITE_NOISE,
-	// 					TypeData: &simulator.Modifier_WhiteNoise{
-	// 						WhiteNoise: &simulator.WhiteNoiseModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							MaxValue: 1.0,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_HYSTERESIS,
-	// 					TypeData: &simulator.Modifier_Hysteresis{
-	// 						Hysteresis: &simulator.HysteresisModifier{
-	// 							Percentage: 3,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_CONSTANT_OFFSET,
-	// 					TypeData: &simulator.Modifier_ConstOffset{
-	// 						ConstOffset: &simulator.ConstantOffsetModifier{
-	// 							Offset: 2.0,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_INERTIA,
-	// 					TypeData: &simulator.Modifier_Inertia{
-	// 						Inertia: &simulator.InertitaModifier{
-	// 							Value:  10,
-	// 							Period: durationpb.New(time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_NONLINEAR_DEPENDENCE,
-	// 					TypeData: &simulator.Modifier_NonLinearDependance{
-	// 						NonLinearDependance: &simulator.NonLinearDependenceModifier{
-	// 							Coefficient: 0.01,
-	// 							Center:      50,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_PROGRESSING_OFFSET,
-	// 					TypeData: &simulator.Modifier_ProgressingOffset{
-	// 						ProgressingOffset: &simulator.ProgressingOffsetModifier{
-	// 							Value:    0.2,
-	// 							Interval: durationpb.New(time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_QUANTIZATION,
-	// 					TypeData: &simulator.Modifier_Quantization{
-	// 						Quantization: &simulator.QuantizationModifier{
-	// 							Quant: 0.05,
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_RANDOM_ADD_DASH,
-	// 					TypeData: &simulator.Modifier_RandomAddDash{
-	// 						RandomAddDash: &simulator.RandomAddDashModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							MinAddValue:     5,
-	// 							MaxAddValue:     10,
-	// 							MinDashDuration: durationpb.New(time.Second),
-	// 							MaxDashDuration: durationpb.New(2 * time.Second),
-	// 							AvgPeriod:       durationpb.New(5 * time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 				{
-	// 					Type: simulator.ModifierType_MODIFIER_TYPE_RANDOM_FIXED_DASH,
-	// 					TypeData: &simulator.Modifier_RandomFixedDash{
-	// 						RandomFixedDash: &simulator.RandomFixedDashModifier{
-	// 							Generator: &simulator.Prng{
-	// 								Type: simulator.PrngType_PRNG_TYPE_XOSHIRO,
-	// 								Seed: 0,
-	// 							},
-	// 							Value:           90,
-	// 							MinDashDuration: durationpb.New(500 * time.Millisecond),
-	// 							MaxDashDuration: durationpb.New(2 * time.Second),
-	// 							AvgPeriod:       durationpb.New(5 * time.Second),
-	// 						},
-	// 					},
-	// 				},
-	// 			},
-	// 			Duration: durationpb.New(0),
-	// 		},
-	// 	},
-	// )
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-
-	// for i := 0; i < 5; i++ {
-	// 	_, err = simulatorService.Start(context.Background(), &simulator.StartRequest{})
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-
-	// 	fmt.Println("started")
-
-	// 	time.Sleep(30 * time.Second)
-
-	// 	_, err = simulatorService.Stop(context.Background(), &simulator.StopRequest{})
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	fmt.Println("stopped")
-	// }
-
-	example := `{
-  "name": "ea",
-  "address": 59789,
+	depend := `{
+  "name": "test_1",
+  "address": 1,
   "base": {
-    "type": "BASE_TYPE_LINEAR",
+    "type": "BASE_TYPE_BEZIER",
     "data": {
       "generator": {
         "type": "PRNG_TYPE_PCG",
-        "seed": -31846565
+        "seed": 5
       },
-      "min_value": -81006763.250687,
-      "max_value": -43596290.86637555,
-      "min_period": "1s",
-      "max_period": "30s"
+      "min_value": 10.0,
+      "max_value": 90.0,
+      "min_period": "2s",
+      "max_period": "4s"
+    }
+  },
+  "modifiers": []
+}
+	`
+
+	example := `{
+  "name": "test",
+  "address": 10,
+  "base": {
+    "type": "BASE_TYPE_BEZIER",
+    "data": {
+      "generator": {
+        "type": "PRNG_TYPE_PCG",
+        "seed": 1
+      },
+      "min_value": 10.0,
+      "max_value": 90.0,
+      "min_period": "2s",
+      "max_period": "4s"
     }
   },
   "modifiers": [
     {
-      "type": "MODIFIER_TYPE_RANDOM_FIXED_DASH",
+      "type": "MODIFIER_TYPE_DEPENDENCE",
       "data": {
-        "offset": 3060482.7858809084
+	  	"simulator_name": "test_1",
+	  	"coefficient": 0.1,
+		"center": 50.0
       }
     }
-  ],
-  "duration": "5h1s"
+  ]
 }
 	`
-
-	simulatorDto := dto.Simulator{}
-	err := json.Unmarshal([]byte(example), &simulatorDto)
+	var simulatorDTO1 dto.Simulator
+	err = json.Unmarshal([]byte(depend), &simulatorDTO1)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
+	err = simulatorService.AddSensor(simulatorDTO1)
 
-	fmt.Printf("%+v\n\n", simulatorDto)
-
-	data, err := json.Marshal(simulatorDto.Base.Data)
+	var simulatorDTO dto.Simulator
+	err = json.Unmarshal([]byte(example), &simulatorDTO)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 
-	fmt.Printf("%s\n\n", data)
+	err = simulatorService.AddSensor(simulatorDTO)
 
-	baseDto := dto.CommonBase{}
-	err = json.Unmarshal([]byte(data), &baseDto)
-	if err != nil {
-		fmt.Println(err)
-	}
+	simulatorService.Start(context.Background())
 
-	fmt.Printf("%+v\n\n", baseDto)
+	time.Sleep(30 * time.Second)
+
+	simulatorService.Stop(context.Background())
 }

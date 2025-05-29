@@ -1,7 +1,9 @@
 package simulator
 
 import (
+	"fmt"
 	"math"
+	"sensor-simulator/internal/configs"
 	"sync/atomic"
 )
 
@@ -19,4 +21,8 @@ func (s *Simulator) tick() {
 		updater.Update(point)
 	}
 
+	if configs.GetConfig().Simulator.LogsEnabled {
+		s.logFile.WriteString(fmt.Sprintf("base %f\n", point.BaseValue))
+		s.logFile.WriteString(fmt.Sprintf("modified %f\n", point.Value))
+	}
 }

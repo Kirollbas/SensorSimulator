@@ -18,16 +18,16 @@ const getJson = async () => {
 
   let is_bad_data = false
 
-  componentRefs.value.forEach(async (child, i) => {
+  for (const child of componentRefs.value) {
     if (child && child.getJson) {
       const result = await child.getJson()
       if (result == null) {
         is_bad_data = true
-        return
+        break
       }
       data.push(result)
     }
-  })
+  }
 
   if (is_bad_data) {
     return null
